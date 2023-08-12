@@ -1,3 +1,6 @@
+#ifndef LFU_CACHE__
+#define LFU_CACHE__
+
 #include <iostream>
 #include <unordered_map>
 #include <map>
@@ -22,6 +25,7 @@ class cache {
     struct frequencyItem;
     
     using freqIter = typename std::list<frequencyItem>::iterator;
+    using itemIter = typename std::list<item>::iterator;    
 public:
     explicit cache(size_type capacity);
     ~cache() = default;
@@ -33,16 +37,16 @@ public:
     freqIter get_cache_iter(size_type offset);
 
 private:
+    void insert_item(KeyT key, const T& value, freqIter iter);
 
     size_type cache_size_; 
     size_type capacity_;
-    std::unordered_map<KeyT, item*> hash_table_;
+    std::unordered_map<KeyT, itemIter> hash_table_;
     std::list<frequencyItem> cache_;
 
     struct item {
         KeyT key_;
         T value_;
-//        frequencyItem* freq_ptr_;    
         freqIter fr_iter_;
 
         item(KeyT key, const T& value):
@@ -54,18 +58,14 @@ private:
     
     struct frequencyItem {
         size_type freq_;   
-        std::stack<item> freq_list_;
+        std::list<item> freq_list_;
 
         explicit frequencyItem(size_type freq):
             freq_{freq} {};
         void inc_frequency() {
             ++freq_;
-        }
+        };
     };
-    /*class frequencyItem {
-        std::size_t freq_;   
-        std::map<size_type, std::list<item>> freq_list_;
-    };*/
 };
 
 template<typename T, typename KeyT>
@@ -90,20 +90,46 @@ cache<T, KeyT>::get_cache_iter(size_type offset) {
 }
 
 template<typename T, typename KeyT>
+void cache<T, KeyT>::insert_item(KeyT key, const T& value, freqIter iter) {
+    item it(key, value, iter);
+    (*iter).freq_list_.push_front(it);
+    hash_table_[key] = (*iter).freq_list_.begin();
+}
+
+template<typename T, typename KeyT>
 bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
     auto is_found = hash_table_.find(key);
     if (is_found == hash_table_.end()) {
-//            auto get_cache_first = get_cache_iter(0);    
-        if (cache_.isFull()) { 
-            auto get_cache_first = cache_.begin();
-            (*get_cache_first).freq_list_.pop();
+        if (isFull()) { 
+            //remove last element in the first freq-list node
+            auto first_it = cache_.begin();    
+            (*first_it).freq_list_.pop_back();
+            //freq-node with member freq_ = 1 should exist
+            if ((*first_it).freq_ != 1) {
+                cache_.push_front(frequencyItem{1});            
+            }
+            //insert item in front of the freq-list with begin iterator
+            insert_item(key, value, cache_.begin());
+            return false;
         } else if (!cache_size_) {
+            //if cache is empty, create freq-list with freq_ = 1
             cache_.push_front(frequencyItem{1});            
         }
-        item it{key, value, get_cache_first};
-        (*get_cache_first).freq_list_.push(it);
+        //if cache has't freq-list with freq_ = 1
+        if ((*cache_.begin()).freq_ != 1) {
+            cache_.push_front(frequencyItem{1});                
+        }
+        insert_item(key, value, cache_.begin());
         ++cache_size_;
+        return false;
     } 
+
+    //
+    ////
+    ///
+    return true;
+
+
 }
 
 template<typename T, typename KeyT>
@@ -111,17 +137,20 @@ bool cache<T, KeyT>::inCache(KeyT key) const {
     
 }
 
-size_type CheckHits(const cache<page_t>& cch, size_type number) {
+size_type CheckHits(cache<page_t>& cch, size_type number) {
     size_type hits = 0;
     for (size_type count = 0; count < number; ++count) {
         page_t tmp_page {};
         std::cin >> tmp_page.page_id;
-        //
+        if (cch.lookup_update(tmp_page.page_id, tmp_page)) {
+            std::cout << "id = " <<  tmp_page.page_id << '\n';
+            ++hits;
+        }
     }
     return hits;
 }
 
 }
-
+#endif
 
 
