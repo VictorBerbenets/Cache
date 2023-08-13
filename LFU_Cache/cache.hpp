@@ -26,16 +26,19 @@ class cache {
     using itemIter = typename std::list<item>::iterator;    
     
     void insert_item(KeyT key, const T& value, freqIter iter);
+    void move_item_element(KeyT key, const T& value, freqIter cache_iter, 
+                           freqIter pos_to_insert, itemIter pos_to_erase);
 public:
     explicit cache(size_type capacity);
     ~cache() = default;
 
+    void print_hash_table();
     bool isFull() const noexcept;
     bool lookup_update(KeyT key, const T& value);
     void printCache() const noexcept;
 private:
     size_type cache_size_; 
-    size_type capacity_;
+    const size_type capacity_;
     std::unordered_map<KeyT, itemIter> hash_table_;
     std::list<frequencyItem> cache_;
 
@@ -43,10 +46,7 @@ private:
         KeyT key_;
         T value_;
         freqIter fr_iter_;
-
-        item(KeyT key, const T& value):
-            key_{key}, value_{value} {};
-        
+ 
         item(KeyT key, const T& value, freqIter it):
             key_{key}, value_{value}, fr_iter_{it} {};
     };
@@ -70,10 +70,11 @@ bool cache<T, KeyT>::isFull() const noexcept {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::insert_item(KeyT key, const T& value, freqIter new_freq_iter) {
-    item it(key, value, new_freq_iter);
-    (*new_freq_iter).freq_list_.push_front(std::move(it));
-    hash_table_[key] = (new_freq_iter->freq_list_).begin();
+void cache<T, KeyT>::print_hash_table() {
+    for (const auto& it : hash_table_) {
+        std::cout << "   " << it.first << ' ';
+    }
+    std::cout << '\n';
 }
 
 template<typename T, typename KeyT>
@@ -90,76 +91,88 @@ void cache<T, KeyT>::printCache() const noexcept{
 }
 
 template<typename T, typename KeyT>
+void cache<T, KeyT>::insert_item(KeyT key, const T& value, freqIter new_freq_iter) {
+    item it(key, value, new_freq_iter);
+    (new_freq_iter->freq_list_).push_front(std::move(it));
+    hash_table_[key] = (new_freq_iter->freq_list_).begin();
+}
+
+template<typename T, typename KeyT>
+void cache<T, KeyT>::move_item_element(KeyT key, const T& value, freqIter cache_iter, 
+     freqIter pos_to_insert, itemIter pos_to_erase) {
+        (cache_iter->freq_list_).erase(pos_to_erase);
+        insert_item(key, value, pos_to_insert);
+        if ((cache_iter->freq_list_).empty()) {
+            cache_.erase(cache_iter);
+        }
+}
+
+
+template<typename T, typename KeyT>
 bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
-    if (!capacity_) {
+   /* if (!capacity_) {
         std::cout << "Cache is not useful" << '\n';
         return false;
-    }
-    auto is_found = hash_table_.find(key);
+    }*/
+
+    std::cout << "hash_:";
+    print_hash_table();
     printCache();
+    auto is_found = hash_table_.find(key);
     if (is_found == hash_table_.end()) {
         if (isFull()) {    
             //remove last element in the first freq-list node
-            std::cout << "CACHE IS FULL\n";
+          //  std::cout << "CACHE IS FULL\n";
             auto first_it = cache_.begin();   
-            auto key_to_remove = (*std::prev(first_it->freq_list_.end())).key_;
+            auto key_to_remove = (*std::prev((cache_.begin()->freq_list_).end())).key_;
             hash_table_.erase(key_to_remove);
             (first_it->freq_list_).pop_back();
-            std::cout << "after pop ";
-            printCache();
+            if ( (cache_.begin()->freq_list_).empty() ) {
+//                std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
+                //cache_.erase(first_it);
+                cache_.pop_front();
+            }
+            //std::cout << "after pop ";
+          //  printCache();
             //freq-node with member freq_ = 1 should exist
-            if ((*first_it).freq_ != 1) {
+           /* if ((*first_it).freq_ != 1) {
                 cache_.push_front(frequencyItem{1});            
+            }*/
+            if ( (*cache_.begin()).freq_ != 1 ) {
+                cache_.push_front(frequencyItem{1});
             }
             //insert item in front of the freq-list with begin iterator
             insert_item(key, value, cache_.begin());
-            std::cout << "after push ";
-            printCache();
+            //std::cout << "after push ";
+        //    printCache();
             return false;
-        } else if (!cache_size_) {
-            std::cout << "zero size key = " << key << '\n';
+        } /*else if (!cache_size_) {
             //if cache is empty, create freq-list with freq_ = 1
             cache_.push_front(frequencyItem{1});            
-        }
-        std::cout << "other key = " << key << '\n';
+        }*/
+      //  std::cout << "OTHER KEY = " << key << '\n';
         //if cache has't    freq-list with freq_ = 1
-        if ((*cache_.begin()).freq_ != 1) {
+        if ((*cache_.begin()).freq_ != 1 || !cache_size_) {
             cache_.push_front(frequencyItem{1});                
         }
         insert_item(key, value, cache_.begin());
         ++cache_size_;
         return false;
     } 
-    std::cout << "key is found = " << key << '\n';
+    //std::cout << "key is found = " << key << '\n';
     
     freqIter cache_iter  = (is_found->second)->fr_iter_;
     auto next_cache_iter = std::next(cache_iter);
-    if (next_cache_iter == cache_.end()) {
-        cache_.push_back(frequencyItem{cache_iter->freq_ + 1});
-        auto save_iter = cache_iter;
-        (cache_iter->freq_list_).erase(is_found->second);
-        insert_item(key, value, ++cache_iter);
-        if ((save_iter->freq_list_).empty()) {
-            cache_.erase(save_iter);
-        }
-    } else if (next_cache_iter->freq_ == (cache_iter->freq_ + 1)) {
-        (cache_iter->freq_list_).erase(is_found->second);
-        insert_item(key, value, next_cache_iter);
-        printCache();
-        printCache();
-        if ((cache_iter->freq_list_).empty()) {
-            cache_.erase(cache_iter);
-         }
+
+    if (next_cache_iter != cache_.end() && next_cache_iter->freq_ == (cache_iter->freq_ + 1)) {
+        move_item_element(key, value, cache_iter, next_cache_iter, is_found->second);
     } else {
-        auto inserted_cell = cache_.insert(next_cache_iter, frequencyItem{cache_iter->freq_ + 1}); 
-        (cache_iter->freq_list_).erase(is_found->second);
-        insert_item(key, value, inserted_cell);
-        if ((cache_iter->freq_list_).empty()) {
-            cache_.erase(cache_iter);
-        }
+        freqIter inserted_cell = cache_.insert(next_cache_iter, frequencyItem{cache_iter->freq_ + 1}); 
+        move_item_element(key, value, cache_iter, inserted_cell, is_found->second);
     }
     return true;
 }
+
 
 size_type CheckHits(cache<page_t>& cch, size_type number) {
     size_type hits = 0;
