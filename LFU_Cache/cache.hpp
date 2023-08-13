@@ -28,6 +28,7 @@ class cache {
     void insert_item(KeyT key, const T& value, freqIter iter);
     void move_item_element(KeyT key, const T& value, freqIter cache_iter, 
                            freqIter pos_to_insert, itemIter pos_to_erase);
+    void remove_last_item();
 public:
     explicit cache(size_type capacity);
     ~cache() = default;
@@ -93,8 +94,8 @@ void cache<T, KeyT>::print_cache() const noexcept{
 template<typename T, typename KeyT>
 void cache<T, KeyT>::insert_item(KeyT key, const T& value, freqIter new_freq_iter) {
     item it(key, value, new_freq_iter);
-    (new_freq_iter->freq_list_).push_front(std::move(it));
-    hash_table_[key] = (new_freq_iter->freq_list_).begin();
+    (new_freq_iter->freq_list_).push_front(std::move(it));  //push new item in the frequencyItem-list                        
+    hash_table_[key] = (new_freq_iter->freq_list_).begin(); //saving new item iter                                                            
 }
 
 template<typename T, typename KeyT>
@@ -109,43 +110,37 @@ void cache<T, KeyT>::move_item_element(KeyT key, const T& value, freqIter cache_
 
 
 template<typename T, typename KeyT>
-bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
-   /* if (!capacity_) {
-        std::cout << "Cache is not useful" << '\n';
-        return false;
-    }*/
+void cache<T, KeyT>::remove_last_item() { 
+    //remove last element in the first freq-list node
+    auto key_to_remove = (*std::prev((cache_.begin()->freq_list_).end())).key_;
+    hash_table_.erase(key_to_remove);
+    (cache_.begin()->freq_list_).pop_back();
+    if ( (cache_.begin()->freq_list_).empty() ) {
+        cache_.pop_front();
+    }
+}
 
-//    print_hash_table();
+
+template<typename T, typename KeyT>
+bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
+    if (!capacity_) {
+        std::cout << "Cache is not useful: cache's capacity == 0" << '\n';
+        return false;
+    }
     print_cache();
     auto is_found = hash_table_.find(key);
     if (is_found == hash_table_.end()) {
         if (is_full()) {    
-            //remove last element in the first freq-list node
-            auto first_it = cache_.begin();   
-            auto key_to_remove = (*std::prev((cache_.begin()->freq_list_).end())).key_;
-            hash_table_.erase(key_to_remove);
-            (first_it->freq_list_).pop_back();
-            if ( (cache_.begin()->freq_list_).empty() ) {
-                cache_.pop_front();
-            }
-            //freq-node with member freq_ = 1 should exist
-           /* if ((*first_it).freq_ != 1) {
-                cache_.push_front(frequencyItem{1});            
-            }*/
+            remove_last_item();
+            //freq-node with member freq_ = 1 must exist because we got new element
             if ( (*cache_.begin()).freq_ != 1 ) {
                 cache_.push_front(frequencyItem{1});
             }
             //insert item in front of the freq-list with begin iterator
             insert_item(key, value, cache_.begin());
-            //std::cout << "after push ";
-        //    printCache();
             return false;
-        } /*else if (!cache_size_) {
-            //if cache is empty, create freq-list with freq_ = 1
-            cache_.push_front(frequencyItem{1});            
-        }*/
-      //  std::cout << "OTHER KEY = " << key << '\n';
-        //if cache has't freq-list with freq_ = 1
+        }
+        //if cache has't freq-list with freq_ == 1
         if ((*cache_.begin()).freq_ != 1 || !cache_size_) {
             cache_.push_front(frequencyItem{1});                
         }
@@ -153,11 +148,11 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
         ++cache_size_;
         return false;
     } 
-    //std::cout << "key is found = " << key << '\n';
-    
+   //element was found in hash_table //
+   //get Iter of list with found element
     freqIter cache_iter  = (is_found->second)->fr_iter_;
     auto next_cache_iter = std::next(cache_iter);
-
+    //looking for next suitable frequencyItem: if next one isn't suitable than insert your own
     if (next_cache_iter != cache_.end() && next_cache_iter->freq_ == (cache_iter->freq_ + 1)) {
         move_item_element(key, value, cache_iter, next_cache_iter, is_found->second);
     } else {
