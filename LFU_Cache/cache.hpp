@@ -24,20 +24,16 @@ class cache {
     
     using freqIter = typename std::list<frequencyItem>::iterator;
     using itemIter = typename std::list<item>::iterator;    
+    
+    void insert_item(KeyT key, const T& value, freqIter iter);
 public:
     explicit cache(size_type capacity);
     ~cache() = default;
 
     bool isFull() const noexcept;
-    bool inCache(KeyT key) const;
-
     bool lookup_update(KeyT key, const T& value);
-    freqIter get_cache_iter(size_type offset);
-    void printCache();
+    void printCache() const noexcept;
 private:
-    void insert_item(KeyT key, const T& value, freqIter iter);
-    void insert_item(item& itm, freqIter new_freq_iter);
-
     size_type cache_size_; 
     size_type capacity_;
     std::unordered_map<KeyT, itemIter> hash_table_;
@@ -74,33 +70,14 @@ bool cache<T, KeyT>::isFull() const noexcept {
 }
 
 template<typename T, typename KeyT>
-typename cache<T, KeyT>::freqIter 
-cache<T, KeyT>::get_cache_iter(size_type offset) {
-    if (offset > cache_size_) {
-        std::cout << "invalid iterator offset\n";
-        return cache_.end();
-    }
-    auto ret_it = cache_.begin();
-    std::advance(ret_it, offset);
-    return ret_it;
-}
-
-template<typename T, typename KeyT>
 void cache<T, KeyT>::insert_item(KeyT key, const T& value, freqIter new_freq_iter) {
     item it(key, value, new_freq_iter);
-    (*new_freq_iter).freq_list_.push_front(it);
+    (*new_freq_iter).freq_list_.push_front(std::move(it));
     hash_table_[key] = (new_freq_iter->freq_list_).begin();
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::insert_item(item& itm, freqIter new_freq_iter) {
-    itm.fr_iter_ = new_freq_iter;
-    (*new_freq_iter).freq_list_.push_front(std::move(itm));
-    hash_table_[itm.key_] = (new_freq_iter->freq_list_).begin(); 
-}
-
-template<typename T, typename KeyT>
-void cache<T, KeyT>::printCache() {
+void cache<T, KeyT>::printCache() const noexcept{
     std::cout << "cache: ";
     for (const auto& it1 : cache_) {
         std::cout << it1.freq_ << ":";
@@ -114,11 +91,14 @@ void cache<T, KeyT>::printCache() {
 
 template<typename T, typename KeyT>
 bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
+    if (!capacity_) {
+        std::cout << "Cache is not useful" << '\n';
+        return false;
+    }
     auto is_found = hash_table_.find(key);
     printCache();
     if (is_found == hash_table_.end()) {
-        if (isFull()) { 
-            
+        if (isFull()) {    
             //remove last element in the first freq-list node
             std::cout << "CACHE IS FULL\n";
             auto first_it = cache_.begin();   
@@ -158,8 +138,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
         cache_.push_back(frequencyItem{cache_iter->freq_ + 1});
         auto save_iter = cache_iter;
         (cache_iter->freq_list_).erase(is_found->second);
-        //insert_item(key, value, ++cache_iter);
-        insert_item(*(is_found->second), ++cache_iter);
+        insert_item(key, value, ++cache_iter);
         if ((save_iter->freq_list_).empty()) {
             cache_.erase(save_iter);
         }
@@ -169,9 +148,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
         for (auto& it : next_cache_iter->freq_list_) {
             std::cout << it.key_ << ' ';
         }
-
         std::cout << '\n';
-//        insert_item(*(is_found->second), next_cache_iter);
         (cache_iter->freq_list_).erase(is_found->second);
         insert_item(key, value, next_cache_iter);
         printCache();
@@ -183,21 +160,12 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
     } else {
         auto inserted_cell = cache_.insert(next_cache_iter, frequencyItem{cache_iter->freq_ + 1}); 
         (cache_iter->freq_list_).erase(is_found->second);
-        insert_item(*(is_found->second), inserted_cell);
+        insert_item(key, value, inserted_cell);
         if ((cache_iter->freq_list_).empty()) {
             cache_.erase(cache_iter);
         }
     }
-    
-
     return true;
-
-
-}
-
-template<typename T, typename KeyT>
-bool cache<T, KeyT>::inCache(KeyT key) const {
-    
 }
 
 size_type CheckHits(cache<page_t>& cch, size_type number) {
@@ -209,7 +177,6 @@ size_type CheckHits(cache<page_t>& cch, size_type number) {
             ++hits;
         }
     }
-    std::cout << "cache LFU: ";
     cch.printCache();
     return hits;
 }
