@@ -33,7 +33,7 @@ public:
 
     bool lookup_update(KeyT key, const T& value);
     freqIter get_cache_iter(size_type offset);
-
+    void printCache();
 private:
     void insert_item(KeyT key, const T& value, freqIter iter);
     void insert_item(item& itm, freqIter new_freq_iter);
@@ -88,7 +88,7 @@ cache<T, KeyT>::get_cache_iter(size_type offset) {
 template<typename T, typename KeyT>
 void cache<T, KeyT>::insert_item(KeyT key, const T& value, freqIter new_freq_iter) {
     item it(key, value, new_freq_iter);
-    (*new_freq_iter).freq_list_.push_front(std::move(it));
+    (*new_freq_iter).freq_list_.push_front(it);
     hash_table_[key] = (new_freq_iter->freq_list_).begin();
 }
 
@@ -100,20 +100,41 @@ void cache<T, KeyT>::insert_item(item& itm, freqIter new_freq_iter) {
 }
 
 template<typename T, typename KeyT>
+void cache<T, KeyT>::printCache() {
+    std::cout << "cache: ";
+    for (const auto& it1 : cache_) {
+        std::cout << it1.freq_ << ":";
+        for (const auto& it2 : it1.freq_list_) {
+            std::cout << it2.key_ << ' ';
+        }
+        std::cout << '\t';
+    }
+    std::cout << std::endl;
+}
+
+template<typename T, typename KeyT>
 bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
     auto is_found = hash_table_.find(key);
+    printCache();
     if (is_found == hash_table_.end()) {
         if (isFull()) { 
+            
             //remove last element in the first freq-list node
-            auto first_it = cache_.begin();    
-            (*first_it).freq_list_.pop_back();
+            std::cout << "CACHE IS FULL\n";
+            auto first_it = cache_.begin();   
+            auto key_to_remove = (*std::prev(first_it->freq_list_.end())).key_;
+            hash_table_.erase(key_to_remove);
+            (first_it->freq_list_).pop_back();
+            std::cout << "after pop ";
+            printCache();
             //freq-node with member freq_ = 1 should exist
             if ((*first_it).freq_ != 1) {
                 cache_.push_front(frequencyItem{1});            
             }
-            std::cout << "full key = " << key << '\n';
             //insert item in front of the freq-list with begin iterator
             insert_item(key, value, cache_.begin());
+            std::cout << "after push ";
+            printCache();
             return false;
         } else if (!cache_size_) {
             std::cout << "zero size key = " << key << '\n';
@@ -121,7 +142,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
             cache_.push_front(frequencyItem{1});            
         }
         std::cout << "other key = " << key << '\n';
-        //if cache has't freq-list with freq_ = 1
+        //if cache has't    freq-list with freq_ = 1
         if ((*cache_.begin()).freq_ != 1) {
             cache_.push_front(frequencyItem{1});                
         }
@@ -131,9 +152,9 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
     } 
     std::cout << "key is found = " << key << '\n';
     
-    freqIter cache_iter = (is_found->second)->fr_iter_;
-    auto next_iter = std::next(cache_iter);
-    if (next_iter == cache_.end()) {
+    freqIter cache_iter  = (is_found->second)->fr_iter_;
+    auto next_cache_iter = std::next(cache_iter);
+    if (next_cache_iter == cache_.end()) {
         cache_.push_back(frequencyItem{cache_iter->freq_ + 1});
         auto save_iter = cache_iter;
         (cache_iter->freq_list_).erase(is_found->second);
@@ -142,22 +163,32 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
         if ((save_iter->freq_list_).empty()) {
             cache_.erase(save_iter);
         }
+    } else if (next_cache_iter->freq_ == (cache_iter->freq_ + 1)) {
+        std::cout << "KEEEEY = " << key << std::endl;
+        std::cout << "FREEQ: " << next_cache_iter->freq_ << std::endl;
+        for (auto& it : next_cache_iter->freq_list_) {
+            std::cout << it.key_ << ' ';
+        }
+
+        std::cout << '\n';
+//        insert_item(*(is_found->second), next_cache_iter);
+        (cache_iter->freq_list_).erase(is_found->second);
+        insert_item(key, value, next_cache_iter);
+        printCache();
+        std::cout << "ERAAASEEE\n";
+        printCache();
+        if ((cache_iter->freq_list_).empty()) {
+            cache_.erase(cache_iter);
+         }
     } else {
-        if (cache_iter->freq_ == (next_iter->freq_ + 1)) {
-            insert_item(*(is_found->second), next_iter);
-            (cache_iter->freq_list_).erase(is_found->second);
-            if ((cache_iter->freq_list_).empty()) {
-                cache_.erase(cache_iter);
-            }
-        } else {
-            auto inserted_cell = cache_.insert(next_iter, frequencyItem{cache_iter->freq_ + 1}); 
-            insert_item(*(is_found->second), inserted_cell);
-            (cache_iter->freq_list_).erase(is_found->second);
-            if ((cache_iter->freq_list_).empty()) {
-                cache_.erase(cache_iter);
-            }
+        auto inserted_cell = cache_.insert(next_cache_iter, frequencyItem{cache_iter->freq_ + 1}); 
+        (cache_iter->freq_list_).erase(is_found->second);
+        insert_item(*(is_found->second), inserted_cell);
+        if ((cache_iter->freq_list_).empty()) {
+            cache_.erase(cache_iter);
         }
     }
+    
 
     return true;
 
@@ -175,10 +206,11 @@ size_type CheckHits(cache<page_t>& cch, size_type number) {
         page_t tmp_page {};
         std::cin >> tmp_page.page_id;
         if (cch.lookup_update(tmp_page.page_id, tmp_page)) {
-            std::cout << "id = " <<  tmp_page.page_id << '\n';
             ++hits;
         }
     }
+    std::cout << "cache LFU: ";
+    cch.printCache();
     return hits;
 }
 
