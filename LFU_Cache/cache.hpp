@@ -143,16 +143,9 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
             cache_.erase(save_iter);
         }
     } else if (next_cache_iter->freq_ == (cache_iter->freq_ + 1)) {
-        std::cout << "KEEEEY = " << key << std::endl;
-        std::cout << "FREEQ: " << next_cache_iter->freq_ << std::endl;
-        for (auto& it : next_cache_iter->freq_list_) {
-            std::cout << it.key_ << ' ';
-        }
-        std::cout << '\n';
         (cache_iter->freq_list_).erase(is_found->second);
         insert_item(key, value, next_cache_iter);
         printCache();
-        std::cout << "ERAAASEEE\n";
         printCache();
         if ((cache_iter->freq_list_).empty()) {
             cache_.erase(cache_iter);
