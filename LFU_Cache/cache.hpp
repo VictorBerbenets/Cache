@@ -3,9 +3,7 @@
 
 #include <iostream>
 #include <unordered_map>
-#include <map>
 #include <list>
-#include <stack>
 
 //|----------------------------|//
 //|    LFU cache algorithm     |//
@@ -58,14 +56,11 @@ private:
     };
     
     struct frequencyItem {
-        size_type freq_;   
+        const size_type freq_;   
         std::list<item> freq_list_;
 
         explicit frequencyItem(size_type freq):
             freq_{freq} {};
-        void inc_frequency() {
-            ++freq_;
-        };
     };
 };
 
@@ -150,6 +145,13 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
     } else {
         if (cache_iter->freq_ == (next_iter->freq_ + 1)) {
             insert_item(*(is_found->second), next_iter);
+            (cache_iter->freq_list_).erase(is_found->second);
+            if ((cache_iter->freq_list_).empty()) {
+                cache_.erase(cache_iter);
+            }
+        } else {
+            auto inserted_cell = cache_.insert(next_iter, frequencyItem{cache_iter->freq_ + 1}); 
+            insert_item(*(is_found->second), inserted_cell);
             (cache_iter->freq_list_).erase(is_found->second);
             if ((cache_iter->freq_list_).empty()) {
                 cache_.erase(cache_iter);
