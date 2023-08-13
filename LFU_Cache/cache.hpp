@@ -32,10 +32,10 @@ public:
     explicit cache(size_type capacity);
     ~cache() = default;
 
-    void print_hash_table();
-    bool isFull() const noexcept;
+    bool is_full() const noexcept;
     bool lookup_update(KeyT key, const T& value);
-    void printCache() const noexcept;
+    void print_cache() const noexcept;
+    void print_hash_table() const noexcept;
 private:
     size_type cache_size_; 
     const size_type capacity_;
@@ -65,29 +65,29 @@ cache<T, KeyT>::cache(size_type capacity):
     cache_size_(0), capacity_(capacity) {};
 
 template<typename T, typename KeyT>
-bool cache<T, KeyT>::isFull() const noexcept {
+bool cache<T, KeyT>::is_full() const noexcept {
     return cache_size_ == capacity_;
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::print_hash_table() {
+void cache<T, KeyT>::print_hash_table() const noexcept{
     for (const auto& it : hash_table_) {
-        std::cout << "   " << it.first << ' ';
+        std::cout << it.first << ' ';
     }
     std::cout << '\n';
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::printCache() const noexcept{
-    std::cout << "cache: ";
+void cache<T, KeyT>::print_cache() const noexcept{
+    std::cout << "cache:\n";
     for (const auto& it1 : cache_) {
         std::cout << it1.freq_ << ":";
         for (const auto& it2 : it1.freq_list_) {
             std::cout << it2.key_ << ' ';
         }
-        std::cout << '\t';
+        std::cout << '\n';
     }
-    std::cout << std::endl;
+    std::cout << "\n\n";
 }
 
 template<typename T, typename KeyT>
@@ -115,25 +115,19 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
         return false;
     }*/
 
-    std::cout << "hash_:";
-    print_hash_table();
-    printCache();
+//    print_hash_table();
+    print_cache();
     auto is_found = hash_table_.find(key);
     if (is_found == hash_table_.end()) {
-        if (isFull()) {    
+        if (is_full()) {    
             //remove last element in the first freq-list node
-          //  std::cout << "CACHE IS FULL\n";
             auto first_it = cache_.begin();   
             auto key_to_remove = (*std::prev((cache_.begin()->freq_list_).end())).key_;
             hash_table_.erase(key_to_remove);
             (first_it->freq_list_).pop_back();
             if ( (cache_.begin()->freq_list_).empty() ) {
-//                std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
-                //cache_.erase(first_it);
                 cache_.pop_front();
             }
-            //std::cout << "after pop ";
-          //  printCache();
             //freq-node with member freq_ = 1 should exist
            /* if ((*first_it).freq_ != 1) {
                 cache_.push_front(frequencyItem{1});            
@@ -151,7 +145,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
             cache_.push_front(frequencyItem{1});            
         }*/
       //  std::cout << "OTHER KEY = " << key << '\n';
-        //if cache has't    freq-list with freq_ = 1
+        //if cache has't freq-list with freq_ = 1
         if ((*cache_.begin()).freq_ != 1 || !cache_size_) {
             cache_.push_front(frequencyItem{1});                
         }
@@ -174,7 +168,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
 }
 
 
-size_type CheckHits(cache<page_t>& cch, size_type number) {
+size_type check_hits(cache<page_t>& cch, size_type number) {
     size_type hits = 0;
     for (size_type count = 0; count < number; ++count) {
         page_t tmp_page {};
@@ -183,7 +177,7 @@ size_type CheckHits(cache<page_t>& cch, size_type number) {
             ++hits;
         }
     }
-    cch.printCache();
+    cch.print_cache();
     return hits;
 }
 
