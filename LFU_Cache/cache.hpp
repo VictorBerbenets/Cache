@@ -36,7 +36,6 @@ public:
     bool is_full() const noexcept;
     bool lookup_update(KeyT key, const T& value);
     void print_cache() const noexcept;
-    void print_hash_table() const noexcept;
 private:
     size_type cache_size_; 
     const size_type capacity_;
@@ -68,14 +67,6 @@ cache<T, KeyT>::cache(size_type capacity):
 template<typename T, typename KeyT>
 bool cache<T, KeyT>::is_full() const noexcept {
     return cache_size_ == capacity_;
-}
-
-template<typename T, typename KeyT>
-void cache<T, KeyT>::print_hash_table() const noexcept{
-    for (const auto& it : hash_table_) {
-        std::cout << it.first << ' ';
-    }
-    std::cout << '\n';
 }
 
 template<typename T, typename KeyT>
@@ -127,7 +118,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
         std::cout << "Cache is not useful: cache's capacity == 0" << '\n';
         return false;
     }
-    print_cache();
+//    print_cache();
     auto is_found = hash_table_.find(key);
     if (is_found == hash_table_.end()) {
         if (is_full()) {    
