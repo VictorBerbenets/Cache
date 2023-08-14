@@ -5,5 +5,7 @@ int main() {
     namespace pfct = Perfect_Cache;
     pfct::size_type cache_capacity;
     std::cin >> cache_capacity;        
-    pfct::cache<std::string, pfct::size_type>(cache_capacity, std::cin);
+    pfct::cache<std::string, pfct::size_type> cache(cache_capacity, std::cin);
+
+    std::cout << cache.get_hits() << '\n';
 }

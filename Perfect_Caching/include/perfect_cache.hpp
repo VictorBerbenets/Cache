@@ -21,12 +21,16 @@ struct page_t {
 template<typename T, typename KeyT = int>
 class cache {
     using cacheCell   = std::pair<KeyT, T>;
-    using cacheIter   = typename std::list<cacheCell>::iterator;
-    using value_count = std::deque< std::pair<size_type, cacheIter> >;
+    using cacheIter   = typename std::vector<cacheCell>::iterator;
+    using buffIter    = typename std::list<cacheCell>::iterator;
+    using value_count = std::deque< std::pair<size_type, buffIter> >;
  
     void fill_buffers(std::istream& is, size_type pages_number);
     void fill_cache();
+    void replace_cache_value(cacheIter cache_iter, std::pair<KeyT, T>&& replacement);
     void remove_value_entry_number(KeyT key);
+    void push_cache(std::pair<KeyT, T>&& push_value);
+    cacheIter find_furthest_value();
 public:
     cache(size_type capacity, std::istream& is);
     ~cache() = default;
@@ -81,42 +85,50 @@ void cache<T, KeyT>::print_cache() const noexcept{
 template<typename T, typename KeyT>
 void cache<T, KeyT>::fill_cache() {
     for (auto& buff_iter : ordered_buffer_) {
-        print_cache();
+       // print_cache();
         //if element not in cache
         if (cache_checker_.find(buff_iter.first) == cache_checker_.end()) {
-            std::cout << buff_iter.first << " not found!\n";
+           // std::cout << buff_iter.first << " not found!\n";
+           // remember new cache element 
             cache_checker_.insert(buff_iter.first);
             if (is_full()) {
-                size_type max_distance = 0;
-                typename std::vector<cacheCell>::iterator swap_cache_iter;
-                for (auto cache_iter = cache_.begin(); cache_iter != cache_.end(); ++cache_iter) {
-                    if (unordered_buffer_.find(cache_iter->first) != unordered_buffer_.end()) {
-                        auto deq_iter = unordered_buffer_[cache_iter->first].begin();
-                        if (deq_iter->first > max_distance) {
-                            max_distance    = deq_iter->first;
-                            swap_cache_iter = cache_iter;
-                        }
-                    } else {
-                        swap_cache_iter = cache_iter;
-                        break;
-                    }
-                }
-                cache_checker_.erase(swap_cache_iter->first);
-                *swap_cache_iter = {buff_iter.first, buff_iter.second};
-                //removing element with most far duplicat
-
+                auto replace_iter = find_furthest_value();
+                replace_cache_value(replace_iter, {buff_iter.first, buff_iter.second});
             } else {
-                cache_.push_back( std::pair{buff_iter.first, buff_iter.second});
-                ++cache_size_;
+                push_cache({buff_iter.first, buff_iter.second});
             }
-
+            //after pushing to cache we don't need 
             remove_value_entry_number(buff_iter.first);
-
         } else {
-            std::cout << buff_iter.first << " found!\n";
+            //std::cout << buff_iter.first << " found!\n";
             ++hits_;
         }
     }
+}
+
+template<typename T, typename KeyT>
+typename cache<T, KeyT>::cacheIter cache<T, KeyT>::find_furthest_value() {
+    size_type max_distance = 0;
+    typename std::vector<cacheCell>::iterator replace_iter;
+    for (auto cache_iter = cache_.begin(); cache_iter != cache_.end(); ++cache_iter) {
+        if (unordered_buffer_.find(cache_iter->first) != unordered_buffer_.end()) {
+            auto deq_iter = unordered_buffer_[cache_iter->first].begin();
+            if (deq_iter->first > max_distance) {
+                max_distance = deq_iter->first;
+                replace_iter = cache_iter;
+            }
+        } else {
+            replace_iter = cache_iter;
+            break;
+        }
+    }
+    return replace_iter;
+}
+
+template<typename T, typename KeyT>
+void cache<T, KeyT>::replace_cache_value(cacheIter cache_iter, std::pair<KeyT, T>&& replacement) {
+    cache_checker_.erase(cache_iter->first);
+    *cache_iter = replacement;
 }
 
 template<typename T, typename KeyT>
@@ -125,6 +137,12 @@ void cache<T, KeyT>::remove_value_entry_number(KeyT key) {
     if (unordered_buffer_[key].empty()) {
         unordered_buffer_.erase(key);
     }
+}
+
+template<typename T, typename KeyT>
+void cache<T, KeyT>::push_cache(std::pair<KeyT, T>&& push_value) {
+    cache_.push_back(push_value);
+    ++cache_size_;
 }
 
 template<typename T, typename KeyT>
@@ -149,5 +167,5 @@ void cache<T, KeyT>::clear() noexcept {
 
 };
 
-
 #endif
+
