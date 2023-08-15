@@ -159,7 +159,6 @@ size_type check_hits(cache<page_t>& cch, size_type number) {
             ++hits;
         }
     }
-    cch.print_cache();
     return hits;
 }
 
