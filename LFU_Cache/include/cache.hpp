@@ -65,60 +65,11 @@ cache<T, KeyT>::cache(size_type capacity):
     cache_size_(0), capacity_(capacity) {};
 
 template<typename T, typename KeyT>
-bool cache<T, KeyT>::is_full() const noexcept {
-    return cache_size_ == capacity_;
-}
-
-template<typename T, typename KeyT>
-void cache<T, KeyT>::print_cache() const noexcept{
-    std::cout << "cache:\n";
-    for (const auto& it1 : cache_) {
-        std::cout << it1.freq_ << ":";
-        for (const auto& it2 : it1.freq_list_) {
-            std::cout << it2.key_ << ' ';
-        }
-        std::cout << '\n';
-    }
-    std::cout << "\n\n";
-}
-
-template<typename T, typename KeyT>
-void cache<T, KeyT>::insert_item(KeyT key, const T& value, freqIter new_freq_iter) {
-    item it(key, value, new_freq_iter);
-    (new_freq_iter->freq_list_).push_front(std::move(it));  //push new item in the frequencyItem-list                        
-    hash_table_[key] = (new_freq_iter->freq_list_).begin(); //saving new item iter                                                            
-}
-
-template<typename T, typename KeyT>
-void cache<T, KeyT>::move_item_element(KeyT key, const T& value, freqIter cache_iter, 
-     freqIter pos_to_insert, itemIter pos_to_erase) {
-        (cache_iter->freq_list_).erase(pos_to_erase);
-        insert_item(key, value, pos_to_insert);
-        if ((cache_iter->freq_list_).empty()) {
-            cache_.erase(cache_iter);
-        }
-}
-
-
-template<typename T, typename KeyT>
-void cache<T, KeyT>::remove_last_item() { 
-    //remove last element in the first freq-list node
-    auto key_to_remove = (*std::prev((cache_.begin()->freq_list_).end())).key_;
-    hash_table_.erase(key_to_remove);
-    (cache_.begin()->freq_list_).pop_back();
-    if ( (cache_.begin()->freq_list_).empty() ) {
-        cache_.pop_front();
-    }
-}
-
-
-template<typename T, typename KeyT>
 bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
     if (!capacity_) {
         std::cout << "Cache is not useful: cache's capacity == 0" << '\n';
         return false;
     }
-//    print_cache();
     auto is_found = hash_table_.find(key);
     if (is_found == hash_table_.end()) {
         if (is_full()) {    
@@ -153,6 +104,51 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const T& value) {
     return true;
 }
 
+template<typename T, typename KeyT>
+bool cache<T, KeyT>::is_full() const noexcept {
+    return cache_size_ == capacity_;
+}
+
+template<typename T, typename KeyT>
+void cache<T, KeyT>::insert_item(KeyT key, const T& value, freqIter new_freq_iter) {
+    item it(key, value, new_freq_iter);
+    (new_freq_iter->freq_list_).push_front(std::move(it));  //push new item in the frequencyItem-list                        
+    hash_table_[key] = (new_freq_iter->freq_list_).begin(); //saving new item iter                                                            
+}
+
+template<typename T, typename KeyT>
+void cache<T, KeyT>::move_item_element(KeyT key, const T& value, freqIter cache_iter, 
+     freqIter pos_to_insert, itemIter pos_to_erase) {
+        (cache_iter->freq_list_).erase(pos_to_erase);
+        insert_item(key, value, pos_to_insert);
+        if ((cache_iter->freq_list_).empty()) {
+            cache_.erase(cache_iter);
+        }
+}
+
+template<typename T, typename KeyT>
+void cache<T, KeyT>::remove_last_item() { 
+    //remove last element in the first freq-list node
+    auto key_to_remove = (*std::prev((cache_.begin()->freq_list_).end())).key_;
+    hash_table_.erase(key_to_remove);
+    (cache_.begin()->freq_list_).pop_back();
+    if ( (cache_.begin()->freq_list_).empty() ) {
+        cache_.pop_front();
+    }
+}
+
+template<typename T, typename KeyT>
+void cache<T, KeyT>::print_cache() const noexcept{
+    std::cout << "cache:\n";
+    for (const auto& it1 : cache_) {
+        std::cout << it1.freq_ << ":";
+        for (const auto& it2 : it1.freq_list_) {
+            std::cout << it2.key_ << ' ';
+        }
+        std::cout << '\n';
+    }
+    std::cout << "\n\n";
+}
 
 size_type check_hits(cache<page_t>& cch, size_type number) {
     size_type hits = 0;
