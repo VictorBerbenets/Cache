@@ -20,10 +20,9 @@ struct page_t {
 
 template<typename T, typename KeyT = int>
 class cache {
-    using cacheCell   = std::pair<KeyT, T>;
-    using cacheIter   = typename std::vector<cacheCell>::iterator;
-    using buffIter    = typename std::list<cacheCell>::iterator;
-    using value_count = std::deque< std::pair<size_type, buffIter> >;
+    using cacheCell      = std::pair<KeyT, T>;
+    using cacheIter      = typename std::vector<cacheCell>::iterator;
+    using elements_order = std::deque<size_type>;
  
     void fill_buffers(std::istream& is, size_type pages_number);
     void fill_cache();
@@ -45,7 +44,7 @@ private:
     std::vector<cacheCell> cache_;
     std::unordered_set<KeyT> cache_checker_; //for checking if element already in cache
     std::list<cacheCell> ordered_buffer_; //for saving data in input order
-    std::unordered_map<KeyT, value_count> unordered_buffer_; // save all data for finding  
+    std::unordered_map<KeyT, elements_order> unordered_buffer_; // save all data for finding  
 
     size_type hits_;
 };
@@ -67,28 +66,17 @@ void cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_number) {
     page_t<T, KeyT> tmp{};
     for (size_type count = 1; count <= pages_number; ++count) {
         is >> tmp.key_;
-        ordered_buffer_.push_back( std::pair{tmp.key_, tmp.data_} ); //ordered pages 
+        ordered_buffer_.push_back({tmp.key_, tmp.data_}); //ordered pages 
         //saving page order by page number to std::deque
-        unordered_buffer_[tmp.key_].push_back( std::pair{count, std::prev(ordered_buffer_.end())} );
+        unordered_buffer_[tmp.key_].push_back(count);
     }
-}
-
-template<typename T, typename KeyT>
-void cache<T, KeyT>::print_cache() const noexcept{
-    std::cout << "cache: ";
-    for (auto& it : cache_) {
-        std::cout << it.first << ' ';
-    }
-    std::cout << '\n';
 }
 
 template<typename T, typename KeyT>
 void cache<T, KeyT>::fill_cache() {
     for (auto& buff_iter : ordered_buffer_) {
-       // print_cache();
         //if element not in cache
         if (cache_checker_.find(buff_iter.first) == cache_checker_.end()) {
-           // std::cout << buff_iter.first << " not found!\n";
            // remember new cache element 
             cache_checker_.insert(buff_iter.first);
             if (is_full()) {
@@ -98,7 +86,6 @@ void cache<T, KeyT>::fill_cache() {
                 push_cache({buff_iter.first, buff_iter.second});
             }
         } else {
-            //std::cout << buff_iter.first << " found!\n";
             ++hits_;
         }
         //after pushing elem to cache we don't need it in hash_table 
@@ -113,8 +100,8 @@ typename cache<T, KeyT>::cacheIter cache<T, KeyT>::find_furthest_value() {
     for (auto cache_iter = cache_.begin(); cache_iter != cache_.end(); ++cache_iter) {
         if (unordered_buffer_.find(cache_iter->first) != unordered_buffer_.end()) {
             auto deque_iter = unordered_buffer_[cache_iter->first].begin();
-            if (deque_iter->first > max_distance) {
-                max_distance = deque_iter->first;
+            if (*deque_iter > max_distance) {
+                max_distance = *deque_iter;
                 replace_iter = cache_iter;
             }
         } else {
@@ -163,6 +150,15 @@ void cache<T, KeyT>::clear() noexcept {
     cache_size_ = 0;
     capacity_   = 0;
     hits_       = 0;
+}
+
+template<typename T, typename KeyT>
+void cache<T, KeyT>::print_cache() const noexcept{
+    std::cout << "cache: ";
+    for (auto& it : cache_) {
+        std::cout << it.first << ' ';
+    }
+    std::cout << '\n';
 }
 
 };
