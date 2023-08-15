@@ -12,7 +12,7 @@
 namespace Perfect_Cache {
     using size_type = std::size_t;
 
-template<typename Key, typename InfoType = std::string>
+template<typename InfoType = std::string, typename Key = size_type>
 struct page_t {
     Key key_;
     InfoType data_;
@@ -55,7 +55,7 @@ cache<T, KeyT>::cache(size_type capacity, std::istream& is):
                 cache_size_{0}, capacity_{capacity} {
     cache_.reserve(capacity_);
 
-    size_type pages_number{};
+    size_type pages_number = 0;
     is >> pages_number;
 
     fill_buffers(is, pages_number);
@@ -64,7 +64,7 @@ cache<T, KeyT>::cache(size_type capacity, std::istream& is):
 
 template<typename T, typename KeyT>
 void cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_number) {
-    page_t<KeyT, T> tmp{};
+    page_t<T, KeyT> tmp{};
     for (size_type count = 1; count <= pages_number; ++count) {
         is >> tmp.key_;
         ordered_buffer_.push_back( std::pair{tmp.key_, tmp.data_} ); //ordered pages 
@@ -97,12 +97,12 @@ void cache<T, KeyT>::fill_cache() {
             } else {
                 push_cache({buff_iter.first, buff_iter.second});
             }
-            //after pushing to cache we don't need 
-            remove_value_entry_number(buff_iter.first);
         } else {
             //std::cout << buff_iter.first << " found!\n";
             ++hits_;
         }
+        //after pushing elem to cache we don't need it in hash_table 
+        remove_value_entry_number(buff_iter.first);
     }
 }
 
@@ -112,9 +112,9 @@ typename cache<T, KeyT>::cacheIter cache<T, KeyT>::find_furthest_value() {
     typename std::vector<cacheCell>::iterator replace_iter;
     for (auto cache_iter = cache_.begin(); cache_iter != cache_.end(); ++cache_iter) {
         if (unordered_buffer_.find(cache_iter->first) != unordered_buffer_.end()) {
-            auto deq_iter = unordered_buffer_[cache_iter->first].begin();
-            if (deq_iter->first > max_distance) {
-                max_distance = deq_iter->first;
+            auto deque_iter = unordered_buffer_[cache_iter->first].begin();
+            if (deque_iter->first > max_distance) {
+                max_distance = deque_iter->first;
                 replace_iter = cache_iter;
             }
         } else {
