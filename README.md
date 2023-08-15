@@ -3,7 +3,7 @@
 In this repository I implemented LFU(a caching algorithm in which the least
 frequently used cache block is removed whenever the cache is overflowed.)
 caching algorithm and compared it with another "perfect cache" algorithm.
-perfect cache algorithm was based on idea that we already know the future(full 
+"Perfect cache" algorithm was based on idea that we already know the future(full 
 incoming data package).
 ## How to build(on Linux)
 ```
@@ -26,4 +26,4 @@ Perfect_Caching/perfect_cache
 
 ## How to run tests:
 
-## How to run compare programm:
+## How to run compare program:
