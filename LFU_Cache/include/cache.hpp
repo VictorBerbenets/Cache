@@ -168,4 +168,3 @@ size_type check_hits(cache<T, KeyT>& cch, size_type number) {
 }
 #endif
 
-

@@ -14,6 +14,8 @@ class compare {
 public:
     compare(std::size_t caches_capacity, std::istream& is);
     ~compare() = default;
+    
+    void dump(std::ofstream& o_file) const noexcept;
 
     double get_lfu_time() const noexcept;
     double get_perfect_time() const noexcept;
@@ -56,6 +58,11 @@ compare<T, KeyT>::compare(std::size_t caches_capacity, std::istream& is):
     perfect_hits_ = perfect_.get_hits();
     auto perfect_end = std::chrono::high_resolution_clock::now();
     perfect_time_ = perfect_end - perfect_start; 
+}
+
+template<typename T, typename KeyT>
+void compare<T, KeyT>::dump(std::ofstream& o_file) const noexcept{
+    
 }
 
 template<typename T, typename KeyT>
