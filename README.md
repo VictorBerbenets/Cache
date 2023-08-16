@@ -16,14 +16,18 @@ make
 After that you can run LFU cache:
 
 ```
-LFU_Cache/lfu_cache
+./LFU_Cache/lfu_cache
 ```
 or you can run "perfect cache":
 
 ```
-Perfect_Caching/perfect_cache
+./Perfect_Caching/perfect_cache
 ```
 
 ## How to run tests:
 
 ## How to run compare program:
+```
+cd build/
+./Compare/compare
+```
