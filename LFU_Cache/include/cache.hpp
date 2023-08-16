@@ -12,9 +12,10 @@
 namespace Cache_LFU { 
 using size_type = std::size_t;
 
+template<typename T, typename Key>
 struct page_t {
-    size_type page_id;
-    std::string page;
+    Key page_id;
+    T page;
 };
 
 template<typename T, typename KeyT = int>
@@ -22,11 +23,12 @@ class cache {
     struct item;
     struct frequencyItem;
     
-    using freqIter = typename std::list<frequencyItem>::iterator;
-    using itemIter = typename std::list<item>::iterator;    
+    using freqIter   = typename std::list<frequencyItem>::iterator;
+    using itemIter   = typename std::list<item>::iterator;  
+    using cacheValue = page_t<T, KeyT>;
     
-    void insert_item(KeyT key, const page_t& value, freqIter iter);
-    void move_item_element(KeyT key, const page_t& value, freqIter cache_iter, 
+    void insert_item(KeyT key, const cacheValue& value, freqIter iter);
+    void move_item_element(KeyT key, const cacheValue& value, freqIter cache_iter, 
                            freqIter pos_to_insert, itemIter pos_to_erase);
     void remove_last_item();
 public:
@@ -34,7 +36,7 @@ public:
     ~cache() = default;
 
     bool is_full() const noexcept;
-    bool lookup_update(KeyT key, const page_t& value);
+    bool lookup_update(KeyT key, const cacheValue& value);
     void print_cache() const noexcept;
 private:
     size_type cache_size_; 
@@ -44,10 +46,10 @@ private:
 
     struct item {
         KeyT key_;
-        page_t value_;
+        cacheValue value_;
         freqIter fr_iter_;
  
-        item(KeyT key, const page_t& value, freqIter it):
+        item(KeyT key, const cacheValue& value, freqIter it):
             key_{key}, value_{value}, fr_iter_{it} {};
     };
     
@@ -65,7 +67,7 @@ cache<T, KeyT>::cache(size_type capacity):
     cache_size_(0), capacity_(capacity) {};
 
 template<typename T, typename KeyT>
-bool cache<T, KeyT>::lookup_update(KeyT key, const page_t& value) {
+bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
     if (!capacity_) {
         std::cout << "Cache is not useful: cache's capacity == 0" << '\n';
         return false;
@@ -110,14 +112,14 @@ bool cache<T, KeyT>::is_full() const noexcept {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::insert_item(KeyT key, const page_t& value, freqIter new_freq_iter) {
+void cache<T, KeyT>::insert_item(KeyT key, const cacheValue& value, freqIter new_freq_iter) {
     item it(key, value, new_freq_iter);
     (new_freq_iter->freq_list_).push_front(std::move(it));  //push new item in the frequencyItem-list                        
     hash_table_[key] = (new_freq_iter->freq_list_).begin(); //saving new item iter                                                            
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::move_item_element(KeyT key, const page_t& value, freqIter cache_iter, 
+void cache<T, KeyT>::move_item_element(KeyT key, const cacheValue& value, freqIter cache_iter, 
      freqIter pos_to_insert, itemIter pos_to_erase) {
         (cache_iter->freq_list_).erase(pos_to_erase);
         insert_item(key, value, pos_to_insert);
@@ -150,11 +152,11 @@ void cache<T, KeyT>::print_cache() const noexcept{
     std::cout << "\n\n";
 }
 
-
-size_type check_hits(cache<page_t>& cch, size_type number) {
+template<typename T, typename KeyT = int>
+size_type check_hits(cache<T, KeyT>& cch, size_type number) {
     size_type hits = 0;
     for (size_type count = 0; count < number; ++count) {
-        page_t tmp_page {};
+        page_t<T, KeyT> tmp_page {};
         std::cin >> tmp_page.page_id;
         if (cch.lookup_update(tmp_page.page_id, tmp_page)) {
             ++hits;

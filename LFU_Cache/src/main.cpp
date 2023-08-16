@@ -1,5 +1,5 @@
 #include <iostream>
-#include "cache_copy.hpp"
+#include "cache.hpp"
 
 int main() {
     namespace lfu = Cache_LFU;
