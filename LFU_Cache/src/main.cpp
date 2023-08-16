@@ -1,12 +1,14 @@
 #include <iostream>
-#include "../include/cache.hpp"
+#include "cache_copy.hpp"
 
 int main() {
     namespace lfu = Cache_LFU;
-    lfu::size_type number;
-    lfu::size_type capacity;
-    std::cin >> capacity >> number;
+    using type = lfu::size_type;
 
-    lfu::cache<lfu::page_t, int> cch(capacity);
+    type number;
+    type capacity;
+    std::cin >> capacity >> number;
+    
+    lfu::cache<std::string, type> cch(capacity);
     std::cout << lfu::check_hits(cch, number) << std::endl;
 }
