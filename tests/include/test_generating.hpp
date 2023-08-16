@@ -1,5 +1,7 @@
 #include <iostream>
 #include <list>
+#include <ctime>
+#include <fstream>
 
 namespace Tests {
 using type = std::size_t;
@@ -72,6 +74,45 @@ weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
         }
     }
     return min_freq;
+}
+
+class generator {
+    using u_int = std::size_t;
+    
+    const u_int MAX_CACHE_SIZE = 1000;
+    const u_int MAX_DATA_SIZE  = 100000000;
+    const u_int MIN_DATA_SIZE  = 150;
+    const u_int MAX_DATA_VALUE = 10000;
+    const u_int MIN_DATA_VALUE = 1;
+    
+    
+public:
+    generator(std::ofstream& w_file):
+        test_file_(w_file) {};
+
+    generate();
+private:
+    std::ofstream& test_file_;
+};
+
+generator::generate() {
+    std::srand(std::time(NULL));
+
+    u_int cache_cap = (std::rand() + 1) % MAX_CACHE_SIZE;
+    u_int data_size = (std::rand() * std::rand() + MIN_DATA_SIZE) % MAX_DATA_SIZE;
+
+    weak_lfu cache(cache_cap);
+
+    test_file_ << cache_cap << ' ' << data_size << ' ';
+    u_int hits = 0;
+    for (u_int count = 0; count < data_size; ++count) {
+        u_int key = (std::rand() + MIN_DATA_VALUE) % MAX_DATA_VALUE;
+        hits += cache.lookup_update(key);
+        test_file_ << key << ' ';
+    }
+
+    
+
 }
 
 };
