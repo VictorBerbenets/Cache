@@ -4,3 +4,4 @@ project(lfu)
 
 add_subdirectory(LFU_Cache)
 add_subdirectory(Perfect_Caching)
+add_subdirectory(Compare)
