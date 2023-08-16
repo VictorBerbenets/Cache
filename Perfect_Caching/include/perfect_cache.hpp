@@ -25,15 +25,20 @@ class cache {
     using elements_order = std::deque<size_type>;
  
     void fill_buffers(std::istream& is, size_type pages_number);
+template<typename Iter>
+    void fill_buffers(Iter first, Iter last);
     void fill_cache();
     void replace_cache_value(cacheIter cache_iter, std::pair<KeyT, T>&& replacement);
     void remove_value_entry_number(KeyT key);
     void push_cache(std::pair<KeyT, T>&& push_value);
     cacheIter find_furthest_value();
 public:
-    cache(size_type capacity, std::istream& is);
+    cache(size_type capacity);
     ~cache() = default;
-
+    
+    void give_data(std::istream& is);
+ template<typename Iter>
+    void give_data(Iter first, Iter last);
     bool is_full() const noexcept;
     size_type get_hits() const noexcept;
     void print_cache() const noexcept;
@@ -50,10 +55,13 @@ private:
 };
 
 template<typename T, typename KeyT>
-cache<T, KeyT>::cache(size_type capacity, std::istream& is):
+cache<T, KeyT>::cache(size_type capacity):
                 cache_size_{0}, capacity_{capacity} {
     cache_.reserve(capacity_);
+}
 
+template<typename T, typename KeyT>
+void cache<T, KeyT>::give_data(std::istream& is) {
     size_type pages_number = 0;
     is >> pages_number;
 
@@ -62,10 +70,30 @@ cache<T, KeyT>::cache(size_type capacity, std::istream& is):
 }
 
 template<typename T, typename KeyT>
+template<typename Iter>
+void cache<T, KeyT>::give_data(Iter first, Iter last) {
+    fill_buffers(first, last);
+    fill_cache();
+}
+
+template<typename T, typename KeyT>
 void cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_number) {
     page_t<T, KeyT> tmp{};
     for (size_type count = 1; count <= pages_number; ++count) {
         is >> tmp.key_;
+        ordered_buffer_.push_back({tmp.key_, tmp.data_}); //ordered pages 
+        //saving page order by page number to std::deque
+        unordered_buffer_[tmp.key_].push_back(count);
+    }
+}
+
+
+template<typename T, typename KeyT>
+template<typename Iter>
+void cache<T, KeyT>::fill_buffers(Iter first, Iter last) {
+    page_t<T, KeyT> tmp{};
+    for (size_type count = 1; first != last; ++first, ++count) {
+        tmp.key_ = *first;
         ordered_buffer_.push_back({tmp.key_, tmp.data_}); //ordered pages 
         //saving page order by page number to std::deque
         unordered_buffer_[tmp.key_].push_back(count);
