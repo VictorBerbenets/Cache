@@ -157,9 +157,7 @@ size_type check_hits(cache<T, KeyT>& cch, size_type number) {
     for (size_type count = 0; count < number; ++count) {
         page_t<T, KeyT> tmp_page {};
         std::cin >> tmp_page.page_id;
-        if (cch.lookup_update(tmp_page.page_id, tmp_page)) {
-            ++hits;
-        }
+        hits += cch.lookup_update(tmp_page.page_id, tmp_page);
     }
     return hits;
 }
