@@ -190,7 +190,7 @@ void generator::generate(u_int test_number) {
         std::cout << "count = " << count << '\n';
 #ifdef __LFU_TEST_GENERATING__
 //        std::cout << "DEFINED LFU\n";
-        generate_lfu_files(u_int #count);
+        generate_lfu_files(u_int count);
 #endif
 #ifdef __PERFECT_TEST_GENERATING__
 //        std::cout << "DEFINED PERFECT\n";
@@ -200,8 +200,9 @@ void generator::generate(u_int test_number) {
 }
 
 void generator::generate_lfu_files(u_int test_number) {
-    std::string test_file_name = "test" + std::to_string(test_number) + ".txt";
-    std::ofstream test_file("../lfu_resources/" + test_file_name);
+    std::string test_number_str = std::to_string(test_number);
+    std::string test_file_name = "test" + test_number_str + ".txt";
+    std::ofstream test_file("../lfu_resources/tests/" + test_file_name);
 
     u_int cache_cap = (std::rand() + 1) % MAX_CACHE_SIZE;
     u_int data_size = (std::rand() * std::rand() + MIN_DATA_SIZE) % MAX_DATA_SIZE;
@@ -216,14 +217,15 @@ void generator::generate_lfu_files(u_int test_number) {
         test_file << ' ' <<  key;
     }
     
-    std::string answ_name = "../lfu_resources/" + test_file_name + "_answ" + ".txt";
+    std::string answ_name = "../lfu_resources/answers/answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
     answer << hits;
 }
 
 void generator::generate_perfect_files(u_int test_number) {
-    std::string test_file_name = "test" + std::to_string(test_number);
-    std::ofstream test_file("../perfect_resources/" + test_file_name + ".txt");
+    std::string test_number_str = std::to_string(test_number);
+    std::string test_file_name = "test" + test_number_str;
+    std::ofstream test_file("../perfect_resources/tests/" + test_file_name + ".txt");
 
     u_int cache_cap = (std::rand() + 1) % MAX_CACHE_SIZE;
     u_int data_size = (std::rand() * std::rand() + MIN_DATA_SIZE) % MAX_DATA_SIZE;
@@ -240,7 +242,7 @@ void generator::generate_perfect_files(u_int test_number) {
 
     weak_perfect cache(cache_cap, data.begin(), data.end());
    
-    std::string answ_name = "../perfect_resources/" + test_file_name + "_answ" + ".txt";
+    std::string answ_name = "../perfect_resources/answers/answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
     answer << cache.get_hits();
 
