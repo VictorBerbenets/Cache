@@ -78,7 +78,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
             remove_last_item();
             //freq-node with member freq_ = 1 must exist because we got new element
             if ( cache_.begin()->freq_ != 1 ) {
-                cache_.push_front(frequencyItem{1});
+                cache_.emplace_front(1);
             }
             //insert item in front of the freq-list with begin iterator
             insert_item(key, value, cache_.begin());
@@ -86,7 +86,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
         }
         //if cache has't freq-list with freq_ == 1
         if (cache_.begin()->freq_ != 1 || !cache_size_) {
-            cache_.push_front(frequencyItem{1});                
+            cache_.emplace_front(1);                
         }
         insert_item(key, value, cache_.begin());
         ++cache_size_;
