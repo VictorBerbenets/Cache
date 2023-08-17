@@ -77,7 +77,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
         if (is_full()) {    
             remove_last_item();
             //freq-node with member freq_ = 1 must exist because we got new element
-            if ( (*cache_.begin()).freq_ != 1 ) {
+            if ( cache_.begin()->freq_ != 1 ) {
                 cache_.push_front(frequencyItem{1});
             }
             //insert item in front of the freq-list with begin iterator
@@ -85,7 +85,7 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
             return false;
         }
         //if cache has't freq-list with freq_ == 1
-        if ((*cache_.begin()).freq_ != 1 || !cache_size_) {
+        if (cache_.begin()->freq_ != 1 || !cache_size_) {
             cache_.push_front(frequencyItem{1});                
         }
         insert_item(key, value, cache_.begin());
@@ -113,8 +113,7 @@ bool cache<T, KeyT>::is_full() const noexcept {
 
 template<typename T, typename KeyT>
 void cache<T, KeyT>::insert_item(KeyT key, const cacheValue& value, freqIter new_freq_iter) {
-    item it(key, value, new_freq_iter);
-    (new_freq_iter->freq_list_).push_front(std::move(it));  //push new item in the frequencyItem-list                        
+    (new_freq_iter->freq_list_).emplace_front(key, value, new_freq_iter);  //push new item in the frequencyItem-list                        
     hash_table_[key] = (new_freq_iter->freq_list_).begin(); //saving new item iter                                                            
 }
 
@@ -131,7 +130,7 @@ void cache<T, KeyT>::move_item_element(KeyT key, const cacheValue& value, freqIt
 template<typename T, typename KeyT>
 void cache<T, KeyT>::remove_last_item() { 
     //remove last element in the first freq-list node
-    auto key_to_remove = (*std::prev((cache_.begin()->freq_list_).end())).key_;
+    auto key_to_remove = std::prev((cache_.begin()->freq_list_).end())->key_;
     hash_table_.erase(key_to_remove);
     (cache_.begin()->freq_list_).pop_back();
     if ( (cache_.begin()->freq_list_).empty() ) {
