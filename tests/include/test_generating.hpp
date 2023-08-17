@@ -187,14 +187,11 @@ void generator::generate(u_int test_number) {
         test_number = MAX_TESTS_NUMBER;
     }
     for (u_int count = 0; count < test_number; ++count) {
-        std::cout << "count = " << count << '\n';
 #ifdef __LFU_TEST_GENERATING__
-//        std::cout << "DEFINED LFU\n";
-        generate_lfu_files(u_int count);
+        generate_lfu_files(count);
 #endif
 #ifdef __PERFECT_TEST_GENERATING__
-//        std::cout << "DEFINED PERFECT\n";
-        generate_perfect_files(u_int count);
+        generate_perfect_files(count);
 #endif
     }
 }
@@ -239,9 +236,9 @@ void generator::generate_perfect_files(u_int test_number) {
         data.push_back(key);
         test_file << ' ' <<  key;
     }
-
+    std::cout << "HELL\n";
     weak_perfect cache(cache_cap, data.begin(), data.end());
-   
+    std::cout << "NOOO\n";
     std::string answ_name = "../perfect_resources/answers/answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
     answer << cache.get_hits();
