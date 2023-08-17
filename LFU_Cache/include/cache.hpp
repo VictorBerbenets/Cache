@@ -81,15 +81,14 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
                 cache_.emplace_front(1);
             }
             //insert item in front of the freq-list with begin iterator
-            insert_item(key, value, cache_.begin());
-            return false;
-        }
-        //if cache has't freq-list with freq_ == 1
-        if (cache_.begin()->freq_ != 1 || !cache_size_) {
-            cache_.emplace_front(1);                
+        } else {
+            //if cache has't freq-list with freq_ == 1
+            if (cache_.begin()->freq_ != 1 || !cache_size_) {
+                cache_.emplace_front(1);                
+            }
+            ++cache_size_;
         }
         insert_item(key, value, cache_.begin());
-        ++cache_size_;
         return false;
     } 
    //element was found in hash_table //
