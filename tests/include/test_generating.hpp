@@ -5,6 +5,9 @@
 #include <string>
 #include <fstream>
 
+#define __LFU_TEST_GENERATING__
+#define __PERFECT_TEST_GENERATING__
+
 namespace Tests {
 using type = std::size_t;
 
@@ -186,10 +189,12 @@ void generator::generate(u_int test_number) {
     for (u_int count = 0; count < test_number; ++count) {
         std::cout << "count = " << count << '\n';
 #ifdef __LFU_TEST_GENERATING__
-        generate_lfu_files(u_int test_number);
+//        std::cout << "DEFINED LFU\n";
+        generate_lfu_files(u_int #count);
 #endif
 #ifdef __PERFECT_TEST_GENERATING__
-        generate_perfect_files(u_int test_number);
+//        std::cout << "DEFINED PERFECT\n";
+        generate_perfect_files(u_int count);
 #endif
     }
 }
@@ -217,8 +222,8 @@ void generator::generate_lfu_files(u_int test_number) {
 }
 
 void generator::generate_perfect_files(u_int test_number) {
-    std::string test_file_name = "test" + std::to_string(test_number) + ".txt";
-    std::ofstream test_file("../perfect_resources/" + test_file_name);
+    std::string test_file_name = "test" + std::to_string(test_number);
+    std::ofstream test_file("../perfect_resources/" + test_file_name + ".txt");
 
     u_int cache_cap = (std::rand() + 1) % MAX_CACHE_SIZE;
     u_int data_size = (std::rand() * std::rand() + MIN_DATA_SIZE) % MAX_DATA_SIZE;
