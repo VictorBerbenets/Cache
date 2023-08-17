@@ -1,19 +1,15 @@
 #include "test_generating.hpp"
 
+#define __LFU_TEST_GENERATING__
+#define __PERFECT_TEST_GENERATIN__
+
 int main() {
     namespace test = Tests;
-    std::size_t cap;
-    std::size_t data_size;
-    std::cin >> cap;
-    std::cin >> data_size;
-    
-    test::weak_lfu lfu(cap);
 
-    std::size_t hits{};
-    std::size_t key{};
-    for (std::size_t i = 0; i < data_size; ++i) {
-        std::cin >> key;
-        hits += lfu.lookup_update(key);
-    }
-    std::cout << hits << std::endl;
+#ifdef __LFU_TEST_GENERATING__
+    test::lfu_generator lfu_gen;
+    gen.generate(50);
+#endif
+
+
 }

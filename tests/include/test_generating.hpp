@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list>
 #include <ctime>
+#include <string>
 #include <fstream>
 
 namespace Tests {
@@ -10,7 +11,6 @@ class weak_lfu {
     using Key = type;
     using cacheType = std::pair<Key, type>;
     using cacheIter = typename std::list<cacheType>::iterator;
-
 
     cacheIter find_minimum_freq(); //find key with minimum frequency
     bool is_full() const noexcept;
@@ -76,43 +76,54 @@ weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
     return min_freq;
 }
 
-class generator {
+class lfu_generator {
     using u_int = std::size_t;
     
-    const u_int MAX_CACHE_SIZE = 1000;
-    const u_int MAX_DATA_SIZE  = 100000000;
+    const u_int MAX_CACHE_SIZE = 100;
+    const u_int MAX_DATA_SIZE  = 1000000;
     const u_int MIN_DATA_SIZE  = 150;
-    const u_int MAX_DATA_VALUE = 10000;
+    const u_int MAX_DATA_VALUE = 1000;
     const u_int MIN_DATA_VALUE = 1;
-    
-    
-public:
-    generator(std::ofstream& w_file):
-        test_file_(w_file) {};
 
-    generate();
-private:
-    std::ofstream& test_file_;
+    const u_int MAX_TESTS_NUMBER = 150;
+     
+    void generate_test(u_int test_number);
+public: 
+    void generate(u_int tests_number);
 };
 
-generator::generate() {
+void lfu_generator::generate(u_int test_number) {
+    if (test_number > MAX_TESTS_NUMBER) {
+        test_number = MAX_TESTS_NUMBER;
+    }
+    for (u_int count = 0; count < test_number; ++count) {
+        std::cout << "count = " << count << '\n';
+        generate_test(count);
+    }
+}
+
+void lfu_generator::generate_test(u_int test_number) {
     std::srand(std::time(NULL));
+
+    std::string test_file_name = "test" + std::to_string(test_number) + ".txt";
+    std::ofstream test_file("../resources/" + test_file_name);
 
     u_int cache_cap = (std::rand() + 1) % MAX_CACHE_SIZE;
     u_int data_size = (std::rand() * std::rand() + MIN_DATA_SIZE) % MAX_DATA_SIZE;
 
     weak_lfu cache(cache_cap);
 
-    test_file_ << cache_cap << ' ' << data_size << ' ';
+    test_file << cache_cap << ' ' << data_size;
     u_int hits = 0;
     for (u_int count = 0; count < data_size; ++count) {
         u_int key = (std::rand() + MIN_DATA_VALUE) % MAX_DATA_VALUE;
         hits += cache.lookup_update(key);
-        test_file_ << key << ' ';
+        test_file << ' ' <<  key;
     }
-
     
-
+    std::string answ_name = "../resources/" + test_file_name + "_answ" + ".txt";
+    std::ofstream answer(answ_name);
+    answer << hits;
 }
 
 };
