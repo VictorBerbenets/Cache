@@ -28,8 +28,6 @@ class cache {
     using cacheValue = page_t<T, KeyT>;
     
     void insert_item(KeyT key, const cacheValue& value, freqIter iter);
-    void move_item_element(KeyT key, const cacheValue& value, freqIter cache_iter, 
-                           freqIter pos_to_insert, itemIter pos_to_erase);
     void remove_last_item();
 public:
     explicit cache(size_type capacity);
@@ -48,7 +46,7 @@ private:
         KeyT key_;
         cacheValue value_;
         freqIter fr_iter_;
- 
+        //constructor for list emplace() method    
         item(KeyT key, const cacheValue& value, freqIter it):
             key_{key}, value_{value}, fr_iter_{it} {};
     };
@@ -80,7 +78,6 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
             if ( cache_.begin()->freq_ != 1 ) {
                 cache_.emplace_front(1);
             }
-            //insert item in front of the freq-list with begin iterator
         } else {
             //if cache has't freq-list with freq_ == 1
             if (cache_.begin()->freq_ != 1 || !cache_size_) {
@@ -95,14 +92,18 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
    //get Iter of list with found element
     freqIter cache_iter  = (is_found->second)->fr_iter_;
     auto next_cache_iter = std::next(cache_iter);
+    (cache_iter->freq_list_).erase(is_found->second);//erase item on found key
     //looking for next suitable frequencyItem: if next one isn't suitable than insert your own
     if (next_cache_iter != cache_.end() && next_cache_iter->freq_ == (cache_iter->freq_ + 1)) {
-        move_item_element(key, value, cache_iter, next_cache_iter, is_found->second);
+        insert_item(key, value, next_cache_iter);
     } else {
-        freqIter inserted_cell = cache_.insert(next_cache_iter, frequencyItem{cache_iter->freq_ + 1}); 
-        move_item_element(key, value, cache_iter, inserted_cell, is_found->second);
+        freqIter inserted_cell = cache_.emplace(next_cache_iter, cache_iter->freq_ + 1); 
+        insert_item(key, value, inserted_cell);
     }
-    return true;
+    if ((cache_iter->freq_list_).empty()) {
+        cache_.erase(cache_iter);
+    }
+return true;
 }
 
 template<typename T, typename KeyT>
@@ -114,16 +115,6 @@ template<typename T, typename KeyT>
 void cache<T, KeyT>::insert_item(KeyT key, const cacheValue& value, freqIter new_freq_iter) {
     (new_freq_iter->freq_list_).emplace_front(key, value, new_freq_iter);  //push new item in the frequencyItem-list                        
     hash_table_[key] = (new_freq_iter->freq_list_).begin(); //saving new item iter                                                            
-}
-
-template<typename T, typename KeyT>
-void cache<T, KeyT>::move_item_element(KeyT key, const cacheValue& value, freqIter cache_iter, 
-     freqIter pos_to_insert, itemIter pos_to_erase) {
-        (cache_iter->freq_list_).erase(pos_to_erase);
-        insert_item(key, value, pos_to_insert);
-        if ((cache_iter->freq_list_).empty()) {
-            cache_.erase(cache_iter);
-        }
 }
 
 template<typename T, typename KeyT>
