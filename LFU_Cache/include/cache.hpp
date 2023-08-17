@@ -151,17 +151,6 @@ void cache<T, KeyT>::print_cache() const noexcept{
     std::cout << "\n\n";
 }
 
-template<typename T, typename KeyT = int>
-size_type check_hits(cache<T, KeyT>& cch, size_type number) {
-    size_type hits = 0;
-    for (size_type count = 0; count < number; ++count) {
-        page_t<T, KeyT> tmp_page {};
-        std::cin >> tmp_page.page_id;
-        hits += cch.lookup_update(tmp_page.page_id, tmp_page);
-    }
-    return hits;
-}
-
 }
 #endif
 
