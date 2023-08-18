@@ -9,9 +9,6 @@ namespace yLAB {
 
 template<typename T, typename KeyT = int>
 class compare {
-//    using lfu_cache = yLAB::cache<T, KeyT>;
-  //  using perfect_cache = yLAB::cache<T, KeyT>;
-
 public:
     compare(std::size_t caches_capacity, std::istream& is);
     ~compare() = default;
@@ -34,7 +31,7 @@ private:
 
 template<typename T, typename KeyT>
 compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is): 
-                lfu_(caches_cap), perfect_(caches_cap), capacity_(caches_cap) {
+                lfu_{caches_cap}, perfect_{caches_cap}, capacity_{caches_cap} {
     using size_type = std::size_t;
 
     is >> data_size_;
