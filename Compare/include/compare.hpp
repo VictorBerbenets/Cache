@@ -5,21 +5,21 @@
 #include "perfect_cache.hpp"
 #include <fstream>
 
-namespace Caches_Comporator {
+namespace yLAB {
 
 template<typename T, typename KeyT = int>
 class compare {
-    using lfu_cache = Cache_LFU::cache<T, KeyT>;
-    using perfect_cache = Perfect_Cache::cache<T, KeyT>;
+    using lfu_cache = yLAB::cache<T, KeyT>;
+    using perfect_cache = yLAB::cache<T, KeyT>;
 
 public:
     compare(std::size_t caches_capacity, std::istream& is);
     ~compare() = default;
     
-    void dump(std::string&& test_file_name) const noexcept;
+    void dump(std::string&& test_file_name) const;
 
-    double get_lfu_time() const noexcept;
-    double get_perfect_time() const noexcept;
+    double get_lfu_time() const; 
+    double get_perfect_time() const;
     std::size_t get_lfu_hits() const noexcept;
     std::size_t get_perfect_hits() const noexcept;
 private:
@@ -30,26 +30,26 @@ private:
     
     std::size_t data_size_;
     std::size_t capacity_;
-};
+}; // <-- class compare
 
 template<typename T, typename KeyT>
 compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is): 
                 lfu_(caches_cap), perfect_(caches_cap), capacity_(caches_cap) {
-    using type = std::size_t;
+    using size_type = std::size_t;
 
     is >> data_size_;
-    std::vector<type> data{};
+    std::vector<size_type> data{};
     data.reserve(data_size_);
     //saving data
-    type tmp1{};
-    for (type count = 0; count < data_size_; ++count) {
+    size_type tmp1{};
+    for (size_type count = 0; count < data_size_; ++count) {
         is >> tmp1;
         data.push_back(tmp1);
     }
     //checking lfu cache
     auto lfu_start = std::chrono::high_resolution_clock::now();
     for (auto iter : data) {
-        Cache_LFU::page_t<std::string, type> tmp2{iter, ""};
+        yLAB::page_t<std::string, size_type> tmp2{iter, ""};
         lfu_hits_ += lfu_.lookup_update(iter, tmp2);//lfu hits
     }
     auto lfu_end = std::chrono::high_resolution_clock::now();//lfu time
@@ -63,7 +63,7 @@ compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is):
 }
 
 template<typename T, typename KeyT>
-void compare<T, KeyT>::dump(std::string&& test_file_name) const noexcept{
+void compare<T, KeyT>::dump(std::string&& test_file_name) const {
     std::string comp_file = "../comparing.txt";
     std::ofstream dump_file(comp_file, std::ios::app);
 
@@ -73,10 +73,10 @@ void compare<T, KeyT>::dump(std::string&& test_file_name) const noexcept{
     dump_file << "                         data_size:      " << data_size_ << '\n';
     dump_file << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n";
     dump_file << "                              Hits                              \n";
-    dump_file << "lfu: " << get_lfu_hits() << "\t\t\t\t\t\t\t\t\t\tperfect: " << get_perfect_hits() << '\n';
+    dump_file << "lfu: " << get_lfu_hits() << "\nperfect: " << get_perfect_hits() << '\n';
     dump_file << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n";
     dump_file << "                              Time                              \n";
-    dump_file << "lfu: " << get_lfu_time() << "\t\t\t\t\t\t\t\tperfect: " << get_perfect_time() << '\n';
+    dump_file << "lfu: " << get_lfu_time() << "\nperfect: " << get_perfect_time() << '\n';
     dump_file << "----------------------------------------------------------------\n\n";
 }
 
@@ -91,13 +91,13 @@ std::size_t compare<T, KeyT>::get_perfect_hits() const noexcept {
 }
 
 template<typename T, typename KeyT>
-double compare<T, KeyT>::get_perfect_time() const noexcept {
+double compare<T, KeyT>::get_perfect_time() const {
     return perfect_time_.count();
 }
 
 template<typename T, typename KeyT>
-double compare<T, KeyT>::get_lfu_time() const noexcept {
+double compare<T, KeyT>::get_lfu_time() const {
     return lfu_time_.count();
 }
 
-};
+}; // <-- namespace yLAB
