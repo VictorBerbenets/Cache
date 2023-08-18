@@ -4,9 +4,10 @@
 #include <ctime>
 #include <string>
 #include <fstream>
+#include <algorithm>
 
 #define __LFU_TEST_GENERATING__
-#define __PERFECT_TEST_GENERATING__
+//#define __PERFECT_TEST_GENERATING__
 
 namespace Tests {
 using type = std::size_t;
@@ -38,13 +39,12 @@ bool weak_lfu::lookup_update(Key key) {
     auto cache_iter = find(key);
     if (cache_iter == cache_.end()) { // not found
         if (is_full()) {
-            auto replace_iter    = find_minimum_freq();
+            auto replace_iter = find_minimum_freq();
             cache_.erase(replace_iter);
-            cache_.push_back( {key, 1} );
         } else {
-            cache_.push_back( {key, 1} );
             ++cache_size_;
         }
+        cache_.emplace_back(key, 1);
         return false;
     }
     cache_iter->second += 1;
@@ -53,12 +53,16 @@ bool weak_lfu::lookup_update(Key key) {
 }
 
 weak_lfu::cacheIter weak_lfu::find(Key key) {
-    for (auto it = cache_.begin(); it != cache_.end(); ++it) {
+    /*for (auto it = cache_.begin(); it != cache_.end(); ++it) {
         if (it->first == key) {
             return it;
         }
-    }
-    return cache_.end();//not found
+    }*/
+    return std::find_if(cache_.begin(), cache_.end(),
+            [&key](auto&& it) {return it.first == key;});
+
+    //return    
+    //return cache_.end();//not found
 }
 
 bool weak_lfu::is_full() const noexcept {
@@ -78,7 +82,10 @@ weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
             }
         }
     }
+
     return min_freq;
+   // return std::min_element(cache_.begin(), cache_.end(), 
+     //     [](auto&& elem1, auto&& elem2) {return elem1.first < elem2.first;});
 }
 //------------------------------------------------------------------------------------------//
 
@@ -150,12 +157,8 @@ weak_perfect::cacheIter weak_perfect::find_farthest_value() {
 }
 
 weak_perfect::cacheIter weak_perfect::find(Key key) {
-    for (auto iter = cache_.begin(); iter != cache_.end(); ++iter) {
-        if (*iter == key) {
-            return iter;
-        }
-    }
-    return cache_.end();
+    return std::find_if(cache_.begin(), cache_.end(), 
+                        [&key](auto&& iter) {return iter == key;} );
 }
 
 weak_perfect::u_int weak_perfect::get_hits() const noexcept {
