@@ -11,26 +11,19 @@
 
 namespace yLAB {
     using size_type = std::size_t;
-
-template<typename InfoType = std::string, typename Key = size_type>
-struct page_t {
-    Key key_;
-    InfoType data_;
-};
-
 template<typename T, typename KeyT = int>
 class cache {
-    using cacheCell      = std::pair<KeyT, T>;
-    using cacheIter      = typename std::vector<cacheCell>::iterator;
+    using page_t         = std::pair<KeyT, T>;
+    using cacheIter      = typename std::vector<page_t>::iterator;
     using elements_order = std::deque<size_type>;
  
     void fill_buffers(std::istream& is, size_type pages_number);
 template<typename Iter>
     void fill_buffers(Iter first, Iter last);
     void fill_cache();
-    void replace_cache_value(cacheIter cache_iter, cacheCell&& replacement);
+    void replace_cache_value(cacheIter cache_iter, page_t&& replacement);
     void remove_value_entry_number(KeyT key);
-    void push_cache(cacheCell&& push_value);
+    void push_cache(page_t&& push_value);
     cacheIter find_furthest_value();
 public:
     cache(size_type capacity);
@@ -47,9 +40,9 @@ template<typename Iter>
 private:
     size_type cache_size_;
     const size_type capacity_;
-    std::vector<cacheCell> cache_;
+    std::vector<page_t> cache_;
     std::unordered_set<KeyT> cache_checker_; //for checking if element already in cache
-    std::list<cacheCell> ordered_buffer_; //for saving data in input order
+    std::list<page_t> ordered_buffer_; //for saving data in input order
     std::unordered_map<KeyT, elements_order> unordered_buffer_; // save all data for finding  
 
     size_type hits_;
@@ -82,15 +75,15 @@ void cache<T, KeyT>::give_data(Iter first, Iter last) {
 
 template<typename T, typename KeyT>
 void cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_number) {
-    page_t<T, KeyT> tmp{};
     for (size_type count = 1; count <= pages_number; ++count) {
-        is >> tmp.key_;
+        page_t tmp{};
+        is >> tmp.first;
         if (!is.good()) {
             throw std::runtime_error{"Data value reading error!\n"};
         }
-        ordered_buffer_.emplace_back(tmp.key_, tmp.data_); //ordered pages 
+        ordered_buffer_.emplace_back(tmp.first, tmp.second); //ordered pages 
         //saving page order by page number to std::deque
-        unordered_buffer_[tmp.key_].push_back(count);
+        unordered_buffer_[tmp.first].push_back(count);
     }
 }
 
@@ -98,12 +91,12 @@ void cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_number) {
 template<typename T, typename KeyT>
 template<typename Iter>
 void cache<T, KeyT>::fill_buffers(Iter first, Iter last) {
-    page_t<T, KeyT> tmp{};
     for (size_type count = 1; first != last; ++first, ++count) {
-        tmp.key_ = *first;
-        ordered_buffer_.emplace_back(tmp.key_, tmp.data_); //ordered pages 
+        page_t tmp{};
+        tmp.first = *first;
+        ordered_buffer_.emplace_back(tmp.first, tmp.second); //ordered pages 
         //saving page order by page number to std::deque
-        unordered_buffer_[tmp.key_].push_back(count);
+        unordered_buffer_[tmp.first].push_back(count);
     }
 }
 
@@ -131,7 +124,7 @@ void cache<T, KeyT>::fill_cache() {
 template<typename T, typename KeyT>
 typename cache<T, KeyT>::cacheIter cache<T, KeyT>::find_furthest_value() {
     size_type max_distance = 0;
-    typename std::vector<cacheCell>::iterator replace_iter;
+    typename std::vector<page_t>::iterator replace_iter;
     for (auto cache_iter = cache_.begin(); cache_iter != cache_.end(); ++cache_iter) {
         //if value with such key was not found in buffer --> replace it
         if (unordered_buffer_.find(cache_iter->first) != unordered_buffer_.end()) {
@@ -149,7 +142,7 @@ typename cache<T, KeyT>::cacheIter cache<T, KeyT>::find_furthest_value() {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::replace_cache_value(cacheIter cache_iter, cacheCell&& replacement) {
+void cache<T, KeyT>::replace_cache_value(cacheIter cache_iter, page_t&& replacement) {
     cache_checker_.erase(cache_iter->first);
     *cache_iter = replacement;
 }
@@ -163,7 +156,7 @@ void cache<T, KeyT>::remove_value_entry_number(KeyT key) {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::push_cache(cacheCell&& push_value) {
+void cache<T, KeyT>::push_cache(page_t&& push_value) {
     cache_.push_back(push_value);
     ++cache_size_;
 }
