@@ -9,7 +9,7 @@
 #include <vector>
 #include <stdexcept>
 
-namespace Perfect_Cache {
+namespace yLAB {
     using size_type = std::size_t;
 
 template<typename InfoType = std::string, typename Key = size_type>
@@ -53,7 +53,7 @@ private:
     std::unordered_map<KeyT, elements_order> unordered_buffer_; // save all data for finding  
 
     size_type hits_;
-};
+}; // <-- class cache
 
 template<typename T, typename KeyT>
 cache<T, KeyT>::cache(size_type capacity):
@@ -197,7 +197,7 @@ void cache<T, KeyT>::print_cache() const {
     std::cout << '\n';
 }
 
-}; 
+}; // <-- namespace yLAB
 
 #endif
 
