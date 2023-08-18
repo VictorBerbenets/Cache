@@ -15,15 +15,10 @@ namespace yLAB {
 
 template<typename T, typename KeyT = int>
 class lfu_cache {
-public: 
-    struct page_t {
-        KeyT page_id;
-        T page;
-    };
-private:
     struct item;
     struct frequencyItem;
     
+    using page_t     = std::pair<T, KeyT>;
     using freqIter   = typename std::list<frequencyItem>::iterator;
     using itemIter   = typename std::list<item>::iterator;  
     using cacheValue = page_t;
