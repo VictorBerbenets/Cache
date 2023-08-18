@@ -11,28 +11,28 @@
 //|----------------------------|//
 
 namespace yLAB { 
-using size_type = std::size_t;
-
-template<typename T, typename Key>
-struct page_t {
-    Key page_id;
-    T page;
-};
+    using size_type = std::size_t;  
 
 template<typename T, typename KeyT = int>
-class cache {
+class lfu_cache {
+public: 
+    struct page_t {
+        KeyT page_id;
+        T page;
+    };
+private:
     struct item;
     struct frequencyItem;
     
     using freqIter   = typename std::list<frequencyItem>::iterator;
     using itemIter   = typename std::list<item>::iterator;  
-    using cacheValue = page_t<T, KeyT>;
+    using cacheValue = page_t;
     
     void insert_item(KeyT key, const cacheValue& value, freqIter iter);
     void remove_last_item();
 public:
-    explicit cache(size_type capacity);
-    ~cache() = default;
+    explicit lfu_cache(size_type capacity);
+    ~lfu_cache() = default;
 
     bool is_full() const noexcept;
     bool lookup_update(KeyT key, const cacheValue& value);
@@ -59,14 +59,14 @@ private:
         explicit frequencyItem(size_type freq):
             freq_{freq} {};
     };
-}; // <-- class cache
+}; // <-- class lfu_cache
 
 template<typename T, typename KeyT>
-cache<T, KeyT>::cache(size_type capacity): 
+lfu_cache<T, KeyT>::lfu_cache(size_type capacity): 
     cache_size_{0}, capacity_{capacity} {};
 
 template<typename T, typename KeyT>
-bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
+bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
     if (!capacity_) {
         std::cout << "Cache is not useful: cache's capacity == 0" << '\n';
         return false;
@@ -108,19 +108,19 @@ bool cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
 }
 
 template<typename T, typename KeyT>
-bool cache<T, KeyT>::is_full() const noexcept {
+bool lfu_cache<T, KeyT>::is_full() const noexcept {
     return cache_size_ == capacity_;
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::insert_item(KeyT key, const cacheValue& value, freqIter new_freq_iter) {
+void lfu_cache<T, KeyT>::insert_item(KeyT key, const cacheValue& value, freqIter new_freq_iter) {
     auto& new_freq_list = new_freq_iter->freq_list_;
     new_freq_list.emplace_front(key, value, new_freq_iter);  //push new item in the frequencyItem-list                        
     hash_table_[key] = new_freq_list.begin(); //saving new item iter                                                            
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::remove_last_item() {
+void lfu_cache<T, KeyT>::remove_last_item() {
     //remove last element in the first freq-list node
     auto& freq_list = cache_.begin()->freq_list_;
     auto key_to_remove = std::prev(freq_list.end())->key_;
@@ -132,7 +132,7 @@ void cache<T, KeyT>::remove_last_item() {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::print_cache() const {
+void lfu_cache<T, KeyT>::print_cache() const {
     std::cout << "cache:\n";
     for (const auto& it1 : cache_) {
         std::cout << it1.freq_ << ":";
