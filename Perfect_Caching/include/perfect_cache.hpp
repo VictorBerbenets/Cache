@@ -133,6 +133,7 @@ typename cache<T, KeyT>::cacheIter cache<T, KeyT>::find_furthest_value() {
     size_type max_distance = 0;
     typename std::vector<cacheCell>::iterator replace_iter;
     for (auto cache_iter = cache_.begin(); cache_iter != cache_.end(); ++cache_iter) {
+        //if value with such key was not found in buffer --> replace it
         if (unordered_buffer_.find(cache_iter->first) != unordered_buffer_.end()) {
             auto deque_iter = unordered_buffer_[cache_iter->first].begin();
             if (*deque_iter > max_distance) {
