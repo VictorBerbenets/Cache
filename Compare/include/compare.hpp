@@ -1,9 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <fstream>
+
 #include "cache.hpp"
 #include "perfect_cache.hpp"
-#include <fstream>
 
 namespace yLAB {
 
