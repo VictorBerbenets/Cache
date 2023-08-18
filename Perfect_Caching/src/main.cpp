@@ -1,5 +1,4 @@
-#include <iostream>
-#include "../include/perfect_cache.hpp"
+#include "perfect_cache.hpp"
 
 int main() { 
     yLAB::size_type cache_capacity;
@@ -7,7 +6,7 @@ int main() {
     if (!std::cin.good()) {
         throw std::runtime_error{"Cache capacity reading error!\n"};
     }
-    yLAB::cache<std::string, yLAB::size_type> cache(cache_capacity);
+    yLAB::perfect_cache<std::string, yLAB::size_type> cache(cache_capacity);
     cache.give_data(std::cin);
 
     std::cout << cache.get_hits() << '\n';

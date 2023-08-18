@@ -12,7 +12,7 @@
 namespace yLAB {
     using size_type = std::size_t;
 template<typename T, typename KeyT = int>
-class cache {
+class perfect_cache {
     using page_t         = std::pair<KeyT, T>;
     using cacheIter      = typename std::vector<page_t>::iterator;
     using elements_order = std::deque<size_type>;
@@ -26,8 +26,8 @@ template<typename Iter>
     void push_cache(page_t&& push_value);
     cacheIter find_furthest_value();
 public:
-    cache(size_type capacity);
-    ~cache() = default;
+    perfect_cache(size_type capacity);
+    ~perfect_cache() = default;
     
     void give_data(std::istream& is);
 template<typename Iter>
@@ -49,13 +49,13 @@ private:
 }; // <-- class cache
 
 template<typename T, typename KeyT>
-cache<T, KeyT>::cache(size_type capacity):
+perfect_cache<T, KeyT>::perfect_cache(size_type capacity):
                 cache_size_{0}, capacity_{capacity} {
     cache_.reserve(capacity_);
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::give_data(std::istream& is) {
+void perfect_cache<T, KeyT>::give_data(std::istream& is) {
     size_type pages_number = 0;
     is >> pages_number;
     if (!is.good()) {
@@ -68,13 +68,13 @@ void cache<T, KeyT>::give_data(std::istream& is) {
 
 template<typename T, typename KeyT>
 template<typename Iter>
-void cache<T, KeyT>::give_data(Iter first, Iter last) {
+void perfect_cache<T, KeyT>::give_data(Iter first, Iter last) {
     fill_buffers(first, last);
     fill_cache();
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_number) {
+void perfect_cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_number) {
     for (size_type count = 1; count <= pages_number; ++count) {
         page_t tmp{};
         is >> tmp.first;
@@ -90,7 +90,7 @@ void cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_number) {
 
 template<typename T, typename KeyT>
 template<typename Iter>
-void cache<T, KeyT>::fill_buffers(Iter first, Iter last) {
+void perfect_cache<T, KeyT>::fill_buffers(Iter first, Iter last) {
     for (size_type count = 1; first != last; ++first, ++count) {
         page_t tmp{};
         tmp.first = *first;
@@ -101,7 +101,7 @@ void cache<T, KeyT>::fill_buffers(Iter first, Iter last) {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::fill_cache() {
+void perfect_cache<T, KeyT>::fill_cache() {
     for (auto& buff_iter : ordered_buffer_) {
         //if element not in cache
         if (cache_checker_.find(buff_iter.first) == cache_checker_.end()) {
@@ -122,7 +122,7 @@ void cache<T, KeyT>::fill_cache() {
 }
 
 template<typename T, typename KeyT>
-typename cache<T, KeyT>::cacheIter cache<T, KeyT>::find_furthest_value() {
+typename perfect_cache<T, KeyT>::cacheIter perfect_cache<T, KeyT>::find_furthest_value() {
     size_type max_distance = 0;
     typename std::vector<page_t>::iterator replace_iter;
     for (auto cache_iter = cache_.begin(); cache_iter != cache_.end(); ++cache_iter) {
@@ -142,13 +142,13 @@ typename cache<T, KeyT>::cacheIter cache<T, KeyT>::find_furthest_value() {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::replace_cache_value(cacheIter cache_iter, page_t&& replacement) {
+void perfect_cache<T, KeyT>::replace_cache_value(cacheIter cache_iter, page_t&& replacement) {
     cache_checker_.erase(cache_iter->first);
     *cache_iter = replacement;
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::remove_value_entry_number(KeyT key) {
+void perfect_cache<T, KeyT>::remove_value_entry_number(KeyT key) {
     unordered_buffer_[key].pop_front();
     if (unordered_buffer_[key].empty()) {
         unordered_buffer_.erase(key);
@@ -156,23 +156,23 @@ void cache<T, KeyT>::remove_value_entry_number(KeyT key) {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::push_cache(page_t&& push_value) {
+void perfect_cache<T, KeyT>::push_cache(page_t&& push_value) {
     cache_.push_back(push_value);
     ++cache_size_;
 }
 
 template<typename T, typename KeyT>
-bool cache<T, KeyT>::is_full() const noexcept {
+bool perfect_cache<T, KeyT>::is_full() const noexcept {
     return cache_size_ == capacity_;
 }
 
 template<typename T, typename KeyT>
-size_type cache<T, KeyT>::get_hits() const noexcept {
+size_type perfect_cache<T, KeyT>::get_hits() const noexcept {
     return hits_;
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::clear() noexcept {
+void perfect_cache<T, KeyT>::clear() noexcept {
     cache_.clear();
     ordered_buffer_.clear();
     cache_checker_.clear();
@@ -183,7 +183,7 @@ void cache<T, KeyT>::clear() noexcept {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::print_cache() const {
+void perfect_cache<T, KeyT>::print_cache() const {
     std::cout << "cache: ";
     for (auto& it : cache_) {
         std::cout << it.first << ' ';
