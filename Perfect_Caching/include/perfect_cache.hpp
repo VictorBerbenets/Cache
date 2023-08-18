@@ -1,5 +1,5 @@
-#ifndef _PERFECT_CACHE_
-#define _PERFECT_CACHE_
+#ifndef PERFECT_CACHE_
+#define PERFECT_CACHE_
 
 #include <iostream>
 #include <unordered_map>
@@ -7,7 +7,7 @@
 #include <deque>
 #include <list>
 #include <vector>
-
+#include <stdexcept>
 
 namespace Perfect_Cache {
     using size_type = std::size_t;
@@ -42,7 +42,7 @@ template<typename Iter>
 
     bool is_full() const noexcept;
     size_type get_hits() const noexcept;
-    void print_cache() const noexcept;
+    void print_cache() const;
     void clear() noexcept;
 private:
     size_type cache_size_;
@@ -65,6 +65,9 @@ template<typename T, typename KeyT>
 void cache<T, KeyT>::give_data(std::istream& is) {
     size_type pages_number = 0;
     is >> pages_number;
+    if (!is.good()) {
+        throw std::runtime_error{"Data size reading error!\n"};
+    }
 
     fill_buffers(is, pages_number);
     fill_cache();
@@ -82,6 +85,9 @@ void cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_number) {
     page_t<T, KeyT> tmp{};
     for (size_type count = 1; count <= pages_number; ++count) {
         is >> tmp.key_;
+        if (!is.good()) {
+            throw std::runtime_error{"Data value reading error!\n"};
+        }
         ordered_buffer_.emplace_back(tmp.key_, tmp.data_); //ordered pages 
         //saving page order by page number to std::deque
         unordered_buffer_[tmp.key_].push_back(count);
@@ -183,7 +189,7 @@ void cache<T, KeyT>::clear() noexcept {
 }
 
 template<typename T, typename KeyT>
-void cache<T, KeyT>::print_cache() const noexcept{
+void cache<T, KeyT>::print_cache() const {
     std::cout << "cache: ";
     for (auto& it : cache_) {
         std::cout << it.first << ' ';
@@ -191,7 +197,7 @@ void cache<T, KeyT>::print_cache() const noexcept{
     std::cout << '\n';
 }
 
-};
+}; 
 
 #endif
 
