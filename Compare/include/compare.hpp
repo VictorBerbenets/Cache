@@ -9,22 +9,22 @@ namespace yLAB {
 
 template<typename T, typename KeyT = int>
 class compare {
-    using lfu_cache = yLAB::cache<T, KeyT>;
-    using perfect_cache = yLAB::cache<T, KeyT>;
+//    using lfu_cache = yLAB::cache<T, KeyT>;
+  //  using perfect_cache = yLAB::cache<T, KeyT>;
 
 public:
     compare(std::size_t caches_capacity, std::istream& is);
     ~compare() = default;
     
-    void dump(std::string&& test_file_name) const;
+    void dump(const std::string& test_file_name) const;
 
     double get_lfu_time() const; 
     double get_perfect_time() const;
     std::size_t get_lfu_hits() const noexcept;
     std::size_t get_perfect_hits() const noexcept;
 private:
-    lfu_cache lfu_;
-    perfect_cache perfect_;
+    lfu_cache<T, KeyT> lfu_;
+    perfect_cache<T, KeyT> perfect_;
     std::size_t lfu_hits_, perfect_hits_;
     std::chrono::duration<double> lfu_time_, perfect_time_;
     
@@ -49,7 +49,8 @@ compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is):
     //checking lfu cache
     auto lfu_start = std::chrono::high_resolution_clock::now();
     for (auto iter : data) {
-        yLAB::page_t<std::string, size_type> tmp2{iter, ""};
+        T value{};
+        std::pair<T, KeyT> tmp2(value, iter);
         lfu_hits_ += lfu_.lookup_update(iter, tmp2);//lfu hits
     }
     auto lfu_end = std::chrono::high_resolution_clock::now();//lfu time
@@ -63,7 +64,7 @@ compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is):
 }
 
 template<typename T, typename KeyT>
-void compare<T, KeyT>::dump(std::string&& test_file_name) const {
+void compare<T, KeyT>::dump(const std::string& test_file_name) const {
     std::string comp_file = "../comparing.txt";
     std::ofstream dump_file(comp_file, std::ios::app);
 
