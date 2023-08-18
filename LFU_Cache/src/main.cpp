@@ -10,7 +10,6 @@ std::size_t check_hits(yLAB::lfu_cache<T, KeyT>& cch, std::size_t number) {
         T t_val{};
         std::cin >> key;
         if (!std::cin.good()) {
-            std::cout << "last readed key = " << key << '\n';
             throw std::runtime_error{"Reading data error!\n"};
         }
         std::pair<T, KeyT> value(t_val, key);
