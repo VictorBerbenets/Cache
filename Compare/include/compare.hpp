@@ -2,8 +2,9 @@
 #include <vector>
 #include <chrono>
 #include <fstream>
+#include <stdexcept>
 
-#include "cache.hpp"
+#include "lfu_cache.hpp"
 #include "perfect_cache.hpp"
 
 namespace yLAB {
