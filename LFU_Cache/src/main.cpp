@@ -1,5 +1,5 @@
 #include <iostream>
-#include "cache.hpp"
+#include "lfu_cache.hpp"
 
 
 template<typename T, typename KeyT = int>
