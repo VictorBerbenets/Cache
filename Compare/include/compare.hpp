@@ -40,8 +40,8 @@ compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is):
     std::vector<size_type> data{};
     data.reserve(data_size_);
     //saving data
-    size_type tmp1{};
     for (size_type count = 0; count < data_size_; ++count) {
+        size_type tmp1{};
         is >> tmp1;
         data.push_back(tmp1);
     }

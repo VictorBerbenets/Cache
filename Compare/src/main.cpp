@@ -1,7 +1,4 @@
 #include "compare.hpp"
-#include <stdexcept>
-
-namespace cmp = Caches_Comporator;
 
 int main(int argc, const char* argv[]) {
     if (argc != 2) {
@@ -13,7 +10,10 @@ int main(int argc, const char* argv[]) {
 
     std::size_t capacity{};
     test_file >> capacity;
+    if (!test_file.good()) {
+        std::runtime_error{"Invalid capacity for cache\n"};
+    }
 
-    cmp::compare<std::string, std::size_t> comp(capacity, test_file);
+    yLAB::compare<std::string, std::size_t> comp(capacity, test_file);
     comp.dump( {argv[1]} );
 }
