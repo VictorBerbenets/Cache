@@ -50,7 +50,7 @@ private:
 
 template<typename T, typename KeyT>
 perfect_cache<T, KeyT>::perfect_cache(size_type capacity):
-                cache_size_{0}, capacity_{capacity} {
+                cache_size_{0}, capacity_{capacity}, hits_{0} {
     cache_.reserve(capacity_);
 }
 
