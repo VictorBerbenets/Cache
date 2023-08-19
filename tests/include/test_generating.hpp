@@ -112,9 +112,7 @@ void weak_perfect::lookup_update() {
     for (auto buff_it = buffer_.begin(); buff_it != buffer_.end(); ++buff_it) {
         auto pos_it = find(*buff_it);
         if (pos_it == cache_.end()) {
-    //        std::cout << "Not found\n";
             if (is_full()) {
-  //              std::cout << "full cache\n";
                 auto most_far = find_farthest_value(buff_it);
                 *most_far = *buff_it; 
             } else {
@@ -122,7 +120,6 @@ void weak_perfect::lookup_update() {
                 ++cache_size_;
             }
         } else {
-           // std::cout << "found key\n";
             ++hits_;
         }
     }
@@ -139,12 +136,11 @@ weak_perfect::cacheIter weak_perfect::find_farthest_value(cacheIter buff_it) {
     for (cacheIter it1 = cache_.begin(); it1 != cache_.end(); ++it1) {
         u_int offset = 0;
         for (cacheIter it2 = buff_it; it2 != buffer_.end(); ++it2, ++offset) {
-            if (*it1 == *it2 && offset > distance) {
-               // std::cout << "offset   = " << offset << '\n';
-                //std::cout << "distance = " << distance << '\n';
+            if (*it1 == *it2 && offset < distance) {
+                break;
+            } else {
                 distance = offset;
                 most_far = it1;
-                break;
             }
         }
     }   
@@ -152,7 +148,13 @@ weak_perfect::cacheIter weak_perfect::find_farthest_value(cacheIter buff_it) {
 }
 
 weak_perfect::cacheIter weak_perfect::find(Key key) {
-    return std::find(cache_.begin(), cache_.end(), key); 
+    for (auto iter = cache_.begin(); iter != cache_.end(); ++iter) {
+        if (*iter == key) {
+            return iter;
+        }
+    }
+    return cache_.end();
+//    return std::find(cache_.begin(), cache_.end(), key); 
 }
 
 std::size_t weak_perfect::get_hits() const noexcept {
