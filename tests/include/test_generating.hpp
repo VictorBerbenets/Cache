@@ -159,8 +159,7 @@ weak_perfect::cacheIter weak_perfect::find_farthest_value() {
 }
 
 weak_perfect::cacheIter weak_perfect::find(Key key) {
-    return std::find_if(cache_.begin(), cache_.end(), 
-                        [&key](auto&& iter) {return iter == key;} );
+    return std::find(cache_.begin(), cache_.end(), key); 
 }
 
 std::size_t weak_perfect::get_hits() const noexcept {
