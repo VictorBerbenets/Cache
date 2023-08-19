@@ -86,28 +86,28 @@ class weak_perfect {
     cacheIter find(Key key);
     bool is_full() const noexcept;
     cacheIter find_farthest_value();
-    void lookup_update();
 public:
 template<typename Iter>
     weak_perfect(u_int capacity, Iter begin, Iter end);
     
+    void lookup_update();
     u_int get_hits() const noexcept;
+    void clear() noexcept;
 private:
     u_int capacity_;
     u_int cache_size_;
     std::list<Key> buffer_;
     std::list<Key> cache_;
-
     u_int hits_;
 };
 
 template<typename Iter>
 weak_perfect::weak_perfect(u_int capacity, Iter begin, Iter end): 
                capacity_{capacity}, buffer_{begin, end} {
-    lookup_update();
 }
 
 void weak_perfect::lookup_update() {
+    std::cout << "hits in begin = " << hits_ << '\n';
     for (auto buff_it = buffer_.begin(); buff_it != buffer_.end(); ) {
         auto pos_it = find(*buff_it);
         if (pos_it == cache_.end()) {
@@ -115,24 +115,24 @@ void weak_perfect::lookup_update() {
             if (is_full()) {
   //              std::cout << "full cache\n";
                 auto save_buff_val = *buff_it;
-                ++buff_it;
-                buffer_.pop_front();
+//                ++buff_it;
+  //              buffer_.pop_front();
                 auto most_far = find_farthest_value();
                 *most_far = save_buff_val; 
-                continue;
             } else {
-               // std::cout << "not full cache\n";
                 cache_.push_back(*buff_it);
                 ++cache_size_;
             }
         } else {
            // std::cout << "found key\n";
             ++hits_;
+           // std::cout << "hits = " << hits_ << '\n';
         }
         //std::cout << "pop buffer\n";
         ++buff_it;
-        buffer_.pop_front();
+       // buffer_.pop_front();
     }
+    std::cout << "hits in end = " << hits_ << '\n';
 //    std::cout << "in 'lookup_update'\n";
 }
 
@@ -147,8 +147,8 @@ weak_perfect::cacheIter weak_perfect::find_farthest_value() {
         u_int offset = 0;
         for (cacheIter it2 = buffer_.begin(); it2 != buffer_.end(); ++it2, ++offset) {
             if (*it1 == *it2 && offset > distance) {
-                std::cout << "offset   = " << offset << '\n';
-                std::cout << "distance = " << distance << '\n';
+               // std::cout << "offset   = " << offset << '\n';
+                //std::cout << "distance = " << distance << '\n';
                 distance = offset;
                 most_far = it1;
                 break;
@@ -163,8 +163,17 @@ weak_perfect::cacheIter weak_perfect::find(Key key) {
                         [&key](auto&& iter) {return iter == key;} );
 }
 
-weak_perfect::u_int weak_perfect::get_hits() const noexcept {
+std::size_t weak_perfect::get_hits() const noexcept {
     return hits_;
+}
+
+void weak_perfect::clear() noexcept {
+    buffer_.clear();
+    cache_.clear();
+    cache_size_ = 0;
+    capacity_ = 0;
+    hits_ = 0;
+
 }
 //------------------------------------------------------------------------------------------//
 
@@ -197,6 +206,7 @@ void generator::generate(u_int test_number) {
         generate_lfu_files(count);
 #endif
 #ifdef PERFECT_TEST_GENERATING_
+        std::cout << "Perfect test: " << count << std::endl;
         generate_perfect_files(count);
 #endif
     }
@@ -207,7 +217,7 @@ void generator::generate_lfu_files(u_int test_number) {
     std::string test_file_name = "test" + test_number_str + ".txt";
     std::ofstream test_file("../lfu_resources/tests/" + test_file_name);
 
-    u_int cache_cap = (std::rand() + 1) % MAX_CACHE_SIZE;
+    u_int cache_cap = std::rand() % MAX_CACHE_SIZE;
     u_int data_size = (std::rand() * std::rand() + MIN_DATA_SIZE) % MAX_DATA_SIZE;
 
     weak_lfu cache(cache_cap);
@@ -230,7 +240,7 @@ void generator::generate_perfect_files(u_int test_number) {
     std::string test_file_name = "test" + test_number_str;
     std::ofstream test_file("../perfect_resources/tests/" + test_file_name + ".txt");
 
-    u_int cache_cap = (std::rand() + 1) % MAX_CACHE_SIZE;
+    u_int cache_cap = std::rand() % MAX_CACHE_SIZE;
     u_int data_size = (std::rand() + MIN_DATA_SIZE) % MAX_PERF_DATA_SIZE;
     
     std::vector<u_int> data{};
@@ -242,12 +252,15 @@ void generator::generate_perfect_files(u_int test_number) {
         data.push_back(key);
         test_file << ' ' <<  key;
     }
+    std::cout << "CAPACITY = " << cache_cap << '\n';
     weak_perfect cache(cache_cap, data.begin(), data.end());
+    cache.lookup_update();
+    std::cout << "hits = " << cache.get_hits() << '\n';
     std::string answ_name = "../perfect_resources/answers/answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
-    answer << cache.get_hits();
+    answer << cache.get_hits() << std::endl;
+    cache.clear();
 
 }
-//------------------------------------------------------------------------------------------//
 
 }; // <-- namespace Tests
