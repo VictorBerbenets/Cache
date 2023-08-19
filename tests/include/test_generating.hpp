@@ -92,7 +92,6 @@ template<typename Iter>
     
     void lookup_update();
     u_int get_hits() const noexcept;
-    void clear() noexcept;
 private:
     u_int capacity_;
     u_int cache_size_;
@@ -160,14 +159,6 @@ std::size_t weak_perfect::get_hits() const noexcept {
     return hits_;
 }
 
-void weak_perfect::clear() noexcept {
-    buffer_.clear();
-    cache_.clear();
-    cache_size_ = 0;
-    capacity_ = 0;
-    hits_ = 0;
-
-}
 //------------------------------------------------------------------------------------------//
 
 class generator {
@@ -231,7 +222,7 @@ void generator::generate_lfu_files(u_int test_number) {
 
 void generator::generate_perfect_files(u_int test_number) {
     std::string test_number_str = std::to_string(test_number);
-    std::string test_file_name = "test" + test_number_str;
+    std::string test_file_name  = "test" + test_number_str;
     std::ofstream test_file("../perfect_resources/tests/" + test_file_name + ".txt");
 
     u_int cache_cap = std::rand() % MAX_CACHE_SIZE;
