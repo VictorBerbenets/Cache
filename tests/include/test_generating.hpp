@@ -94,7 +94,6 @@ template<typename Iter>
     u_int get_hits() const noexcept;
 private:
     u_int capacity_;
-    u_int cache_size_;
     std::vector<Key> buffer_;
     std::vector<Key> cache_;
     u_int hits_;
@@ -102,8 +101,7 @@ private:
 
 template<typename Iter>
 weak_perfect::weak_perfect(u_int capacity, Iter begin, Iter end): 
-               capacity_{capacity}, cache_size_{0}, 
-               buffer_{begin, end}, hits_{0} {
+               capacity_{capacity}, buffer_{begin, end}, hits_{0} {
     cache_.reserve(capacity_);
 }
 
@@ -117,7 +115,6 @@ void weak_perfect::lookup_update() {
                 *most_far = *buff_it; 
             } else {
                 cache_.push_back(*buff_it);
-                ++cache_size_;
             }
         } else {
             ++hits_;
@@ -127,7 +124,7 @@ void weak_perfect::lookup_update() {
 }
 
 bool weak_perfect::is_full() const noexcept {
-    return cache_size_ == capacity_;
+    return cache_.size() == capacity_;
 }
 
 weak_perfect::cacheIter weak_perfect::find_farthest_value(cacheIter buff_it) {
