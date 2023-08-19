@@ -1,10 +1,8 @@
 #include "test_generating.hpp"
 
-
-
 int main(int argc, const char* argv[]) {
     if (argc != 2) {
-        std::cout << "Incorrect command line arguments! Expected number of tests\n";   
+        throw std::runtime_error{"Incorrect command line arguments! Expected number of tests\n"};
     }
     int64_t tests_number{};
     try {
