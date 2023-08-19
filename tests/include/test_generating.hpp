@@ -6,7 +6,7 @@
 #include <fstream>
 #include <algorithm>
 
-//#define LFU_TEST_GENERATING_
+#define LFU_TEST_GENERATING_
 #define PERFECT_TEST_GENERATING_
 
 namespace Tests {
@@ -259,8 +259,7 @@ void generator::generate_perfect_files(u_int test_number) {
     std::string answ_name = "../perfect_resources/answers/answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
     answer << cache.get_hits() << std::endl;
-    cache.clear();
-
+//    cache.clear();
 }
 
 }; // <-- namespace Tests
