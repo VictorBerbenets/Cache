@@ -250,4 +250,4 @@ void generator::generate_perfect_files(u_int test_number) {
 }
 //------------------------------------------------------------------------------------------//
 
-};
+}; // <-- namespace Tests
