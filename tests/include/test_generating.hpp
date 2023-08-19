@@ -81,11 +81,11 @@ weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
 class weak_perfect {
     using u_int     = std::size_t;
     using Key       = u_int;
-    using cacheIter = typename std::list<Key>::iterator;
+    using cacheIter = typename std::vector<Key>::iterator;
     
     cacheIter find(Key key);
     bool is_full() const noexcept;
-    cacheIter find_farthest_value();
+    cacheIter find_farthest_value(cacheIter buff_it);
 public:
 template<typename Iter>
     weak_perfect(u_int capacity, Iter begin, Iter end);
@@ -96,29 +96,28 @@ template<typename Iter>
 private:
     u_int capacity_;
     u_int cache_size_;
-    std::list<Key> buffer_;
-    std::list<Key> cache_;
+    std::vector<Key> buffer_;
+    std::vector<Key> cache_;
     u_int hits_;
 };
 
 template<typename Iter>
 weak_perfect::weak_perfect(u_int capacity, Iter begin, Iter end): 
-               capacity_{capacity}, buffer_{begin, end} {
+               capacity_{capacity}, cache_size_{0}, 
+               buffer_{begin, end}, hits_{0} {
+    cache_.reserve(capacity_);
 }
 
 void weak_perfect::lookup_update() {
     std::cout << "hits in begin = " << hits_ << '\n';
-    for (auto buff_it = buffer_.begin(); buff_it != buffer_.end(); ) {
+    for (auto buff_it = buffer_.begin(); buff_it != buffer_.end(); ++buff_it) {
         auto pos_it = find(*buff_it);
         if (pos_it == cache_.end()) {
     //        std::cout << "Not found\n";
             if (is_full()) {
   //              std::cout << "full cache\n";
-                auto save_buff_val = *buff_it;
-//                ++buff_it;
-  //              buffer_.pop_front();
-                auto most_far = find_farthest_value();
-                *most_far = save_buff_val; 
+                auto most_far = find_farthest_value(buff_it);
+                *most_far = *buff_it; 
             } else {
                 cache_.push_back(*buff_it);
                 ++cache_size_;
@@ -126,26 +125,21 @@ void weak_perfect::lookup_update() {
         } else {
            // std::cout << "found key\n";
             ++hits_;
-           // std::cout << "hits = " << hits_ << '\n';
         }
-        //std::cout << "pop buffer\n";
-        ++buff_it;
-       // buffer_.pop_front();
     }
     std::cout << "hits in end = " << hits_ << '\n';
-//    std::cout << "in 'lookup_update'\n";
 }
 
 bool weak_perfect::is_full() const noexcept {
     return cache_size_ == capacity_;
 }
 
-weak_perfect::cacheIter weak_perfect::find_farthest_value() {
+weak_perfect::cacheIter weak_perfect::find_farthest_value(cacheIter buff_it) {
     auto most_far = cache_.begin();
     u_int distance = 0;
     for (cacheIter it1 = cache_.begin(); it1 != cache_.end(); ++it1) {
         u_int offset = 0;
-        for (cacheIter it2 = buffer_.begin(); it2 != buffer_.end(); ++it2, ++offset) {
+        for (cacheIter it2 = buff_it; it2 != buffer_.end(); ++it2, ++offset) {
             if (*it1 == *it2 && offset > distance) {
                // std::cout << "offset   = " << offset << '\n';
                 //std::cout << "distance = " << distance << '\n';
@@ -228,7 +222,8 @@ void generator::generate_lfu_files(u_int test_number) {
         hits += cache.lookup_update(key);
         test_file << ' ' <<  key;
     }
-    
+    test_file << ' ';
+
     std::string answ_name = "../lfu_resources/answers/answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
     answer << hits;
@@ -251,6 +246,8 @@ void generator::generate_perfect_files(u_int test_number) {
         data.push_back(key);
         test_file << ' ' <<  key;
     }
+    test_file << ' ';
+
     std::cout << "CAPACITY = " << cache_cap << '\n';
     weak_perfect cache(cache_cap, data.begin(), data.end());
     cache.lookup_update();
