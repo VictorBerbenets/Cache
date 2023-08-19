@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <climits>
 
 #define LFU_TEST_GENERATING_
 #define PERFECT_TEST_GENERATING_
@@ -32,9 +33,12 @@ private:
 };
 
 weak_lfu::weak_lfu(size_type capacity):
-        cache_size_{0}, capacity_(capacity) {}
+        cache_size_{0}, capacity_{capacity} {}
 
 bool weak_lfu::lookup_update(Key key) {
+    if (!capacity_) {
+        return false;
+    }
     auto cache_iter = find(key);
     if (cache_iter == cache_.end()) { // not found
         if (is_full()) {
@@ -61,9 +65,10 @@ bool weak_lfu::is_full() const noexcept {
 
 weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
     cacheIter min_freq = cache_.begin();
-    size_type min   = 4000000000; //for the first compare
+    size_type min   = UINT_MAX; //for the first compare
     size_type count = 0;
-    for (auto it = cache_.begin(); it != cache_.end() && count < cache_size_; ++it, ++count) {
+//    for (auto it = cache_.begin(); it != cache_.end() && count < cache_size_; ++it, ++count) {
+    for (auto it = cache_.begin(); it != cache_.end(); ++it, ++count) {
         if (it->second < min) {
             min = it->second;
             min_freq = it;
@@ -73,8 +78,6 @@ weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
         }
     }
     return min_freq;
-   // return std::min_element(cache_.begin(), cache_.end(), 
-     //     [](auto&& elem1, auto&& elem2) {return elem1.first < elem2.first;});
 }
 //------------------------------------------------------------------------------------------//
 
@@ -106,7 +109,9 @@ weak_perfect::weak_perfect(u_int capacity, Iter begin, Iter end):
 }
 
 void weak_perfect::lookup_update() {
-    std::cout << "hits in begin = " << hits_ << '\n';
+    if (!capacity_) {
+        return ;
+    }
     for (auto buff_it = buffer_.begin(); buff_it != buffer_.end(); ++buff_it) {
         auto pos_it = find(*buff_it);
         if (pos_it == cache_.end()) {
@@ -120,7 +125,6 @@ void weak_perfect::lookup_update() {
             ++hits_;
         }
     }
-    std::cout << "hits in end = " << hits_ << '\n';
 }
 
 bool weak_perfect::is_full() const noexcept {
@@ -145,19 +149,12 @@ weak_perfect::cacheIter weak_perfect::find_farthest_value(cacheIter buff_it) {
 }
 
 weak_perfect::cacheIter weak_perfect::find(Key key) {
-    for (auto iter = cache_.begin(); iter != cache_.end(); ++iter) {
-        if (*iter == key) {
-            return iter;
-        }
-    }
-    return cache_.end();
-//    return std::find(cache_.begin(), cache_.end(), key); 
+    return std::find(cache_.begin(), cache_.end(), key); 
 }
 
 std::size_t weak_perfect::get_hits() const noexcept {
     return hits_;
 }
-
 //------------------------------------------------------------------------------------------//
 
 class generator {
@@ -189,7 +186,6 @@ void generator::generate(u_int test_number) {
         generate_lfu_files(count);
 #endif
 #ifdef PERFECT_TEST_GENERATING_
-        std::cout << "Perfect test: " << count << std::endl;
         generate_perfect_files(count);
 #endif
     }
@@ -207,6 +203,7 @@ void generator::generate_lfu_files(u_int test_number) {
 
     test_file << cache_cap << ' ' << data_size;
     u_int hits = 0;
+    
     for (u_int count = 0; count < data_size; ++count) {
         u_int key = (std::rand() + MIN_DATA_VALUE) % MAX_DATA_VALUE;
         hits += cache.lookup_update(key);
@@ -216,7 +213,7 @@ void generator::generate_lfu_files(u_int test_number) {
 
     std::string answ_name = "../lfu_resources/answers/answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
-    answer << hits;
+    answer << hits << std::endl;
 }
 
 void generator::generate_perfect_files(u_int test_number) {
@@ -238,14 +235,12 @@ void generator::generate_perfect_files(u_int test_number) {
     }
     test_file << ' ';
 
-    std::cout << "CAPACITY = " << cache_cap << '\n';
     weak_perfect cache(cache_cap, data.begin(), data.end());
     cache.lookup_update();
-    std::cout << "hits = " << cache.get_hits() << '\n';
+    
     std::string answ_name = "../perfect_resources/answers/answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
     answer << cache.get_hits() << std::endl;
-//    cache.clear();
 }
 
 }; // <-- namespace Tests
