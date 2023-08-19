@@ -52,7 +52,7 @@ bool weak_lfu::lookup_update(Key key) {
 
 weak_lfu::cacheIter weak_lfu::find(Key key) {
     return std::find_if(cache_.begin(), cache_.end(),
-            [&key](auto&& it) {return it.first == key;});
+                        [&key](auto&& it) {return it.first == key;});
 }
 
 bool weak_lfu::is_full() const noexcept {
@@ -128,20 +128,20 @@ bool weak_perfect::is_full() const noexcept {
 }
 
 weak_perfect::cacheIter weak_perfect::find_farthest_value(cacheIter buff_it) {
-    auto most_far = cache_.begin();
-    u_int distance = 0;
+    std::vector<cacheIter> distance_iters{};
     for (cacheIter it1 = cache_.begin(); it1 != cache_.end(); ++it1) {
-        u_int offset = 0;
-        for (cacheIter it2 = buff_it; it2 != buffer_.end(); ++it2, ++offset) {
-            if (*it1 == *it2 && offset < distance) {
-                break;
-            } else {
-                distance = offset;
-                most_far = it1;
-            }
+        auto key_iter = std::find(buff_it, buffer_.end(), *it1);
+        if (key_iter == buffer_.end()) {
+            return it1;
         }
-    }   
-    return most_far;
+        distance_iters.push_back(key_iter);
+    }
+    if (distance_iters.empty()) {
+        return cache_.begin();
+    }
+    std::sort(distance_iters.begin(), distance_iters.end(), std::greater<cacheIter>());
+    Key key = *distance_iters.front();
+    return std::find(cache_.begin(), cache_.end(), key);
 }
 
 weak_perfect::cacheIter weak_perfect::find(Key key) {
