@@ -21,16 +21,15 @@ class lfu_cache {
     using page_t     = std::pair<T, KeyT>;
     using freqIter   = typename std::list<frequencyItem>::iterator;
     using itemIter   = typename std::list<item>::iterator;  
-    using cacheValue = page_t;
     
-    void insert_item(KeyT key, const cacheValue& value, freqIter iter);
+    void insert_item(KeyT key, const page_t& value, freqIter iter);
     void remove_last_item();
 public:
     explicit lfu_cache(size_type capacity);
     ~lfu_cache() = default;
 
     bool is_full() const noexcept;
-    bool lookup_update(KeyT key, const cacheValue& value);
+    bool lookup_update(KeyT key, const page_t& value);
     void print_cache() const;
 private:
     size_type cache_size_; 
@@ -40,10 +39,10 @@ private:
 
     struct item {
         KeyT key_;
-        cacheValue value_;
+        page_t value_;
         freqIter fr_iter_;
         //constructor for list emplace() method    
-        item(KeyT key, const cacheValue& value, freqIter it):
+        item(KeyT key, const page_t& value, freqIter it):
             key_{key}, value_{value}, fr_iter_{it} {};
     };
     
@@ -61,7 +60,7 @@ lfu_cache<T, KeyT>::lfu_cache(size_type capacity):
     cache_size_{0}, capacity_{capacity} {};
 
 template<typename T, typename KeyT>
-bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const cacheValue& value) {
+bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const page_t& value) {
     if (!capacity_) {
         std::cout << "Cache is not useful: cache's capacity == 0" << '\n';
         return false;
@@ -108,7 +107,7 @@ bool lfu_cache<T, KeyT>::is_full() const noexcept {
 }
 
 template<typename T, typename KeyT>
-void lfu_cache<T, KeyT>::insert_item(KeyT key, const cacheValue& value, freqIter new_freq_iter) {
+void lfu_cache<T, KeyT>::insert_item(KeyT key, const page_t& value, freqIter new_freq_iter) {
     auto& new_freq_list = new_freq_iter->freq_list_;
     new_freq_list.emplace_front(key, value, new_freq_iter);  //push new item in the frequencyItem-list                        
     hash_table_[key] = new_freq_list.begin(); //saving new item iter                                                            
