@@ -6,33 +6,32 @@
 #include <fstream>
 #include <algorithm>
 
-#define __LFU_TEST_GENERATING__
-//#define __PERFECT_TEST_GENERATING__
+//#define LFU_TEST_GENERATING_
+#define PERFECT_TEST_GENERATING_
 
 namespace Tests {
-using type = std::size_t;
-
+    using size_type = std::size_t;
 //------------------------------------------------------------------------------------------//
 class weak_lfu {
-    using Key = type;
-    using cacheType = std::pair<Key, type>;
+    using Key = size_type;
+    using cacheType = std::pair<Key, size_type>;
     using cacheIter = typename std::list<cacheType>::iterator;
 
     cacheIter find_minimum_freq(); //find key with minimum frequency
     bool is_full() const noexcept;
     cacheIter find(Key key);
 public:
-    weak_lfu(type capacity);
+    weak_lfu(size_type capacity);
     weak_lfu() = default;
 
     bool lookup_update(Key key);
 private:
     std::list<cacheType> cache_;
-    type cache_size_;
-    type capacity_;
+    size_type cache_size_;
+    size_type capacity_;
 };
 
-weak_lfu::weak_lfu(type capacity):
+weak_lfu::weak_lfu(size_type capacity):
         cache_size_{0}, capacity_(capacity) {}
 
 bool weak_lfu::lookup_update(Key key) {
@@ -48,21 +47,12 @@ bool weak_lfu::lookup_update(Key key) {
         return false;
     }
     cache_iter->second += 1;
-    
     return true;
 }
 
 weak_lfu::cacheIter weak_lfu::find(Key key) {
-    /*for (auto it = cache_.begin(); it != cache_.end(); ++it) {
-        if (it->first == key) {
-            return it;
-        }
-    }*/
     return std::find_if(cache_.begin(), cache_.end(),
             [&key](auto&& it) {return it.first == key;});
-
-    //return    
-    //return cache_.end();//not found
 }
 
 bool weak_lfu::is_full() const noexcept {
@@ -71,8 +61,8 @@ bool weak_lfu::is_full() const noexcept {
 
 weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
     cacheIter min_freq = cache_.begin();
-    type min   = 4000000000; //for the first compare
-    type count = 0;
+    size_type min   = 4000000000; //for the first compare
+    size_type count = 0;
     for (auto it = cache_.begin(); it != cache_.end() && count < cache_size_; ++it, ++count) {
         if (it->second < min) {
             min = it->second;
@@ -82,7 +72,6 @@ weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
             }
         }
     }
-
     return min_freq;
    // return std::min_element(cache_.begin(), cache_.end(), 
      //     [](auto&& elem1, auto&& elem2) {return elem1.first < elem2.first;});
@@ -114,27 +103,37 @@ private:
 
 template<typename Iter>
 weak_perfect::weak_perfect(u_int capacity, Iter begin, Iter end): 
-               capacity_{capacity}, buffer_(begin, end) {
+               capacity_{capacity}, buffer_{begin, end} {
     lookup_update();
 }
 
 void weak_perfect::lookup_update() {
-    for (auto buff_it : buffer_) {
-        auto pos_it = find(buff_it);
+    for (auto buff_it = buffer_.begin(); buff_it != buffer_.end(); ) {
+        auto pos_it = find(*buff_it);
         if (pos_it == cache_.end()) {
+    //        std::cout << "Not found\n";
             if (is_full()) {
+  //              std::cout << "full cache\n";
+                auto save_buff_val = *buff_it;
+                ++buff_it;
+                buffer_.pop_front();
                 auto most_far = find_farthest_value();
-                *most_far = buff_it; 
+                *most_far = save_buff_val; 
+                continue;
             } else {
-                cache_.push_back(buff_it);
+               // std::cout << "not full cache\n";
+                cache_.push_back(*buff_it);
                 ++cache_size_;
             }
         } else {
+           // std::cout << "found key\n";
             ++hits_;
         }
-
+        //std::cout << "pop buffer\n";
+        ++buff_it;
         buffer_.pop_front();
     }
+//    std::cout << "in 'lookup_update'\n";
 }
 
 bool weak_perfect::is_full() const noexcept {
@@ -142,14 +141,17 @@ bool weak_perfect::is_full() const noexcept {
 }
 
 weak_perfect::cacheIter weak_perfect::find_farthest_value() {
-    auto most_far = buffer_.begin();
+    auto most_far = cache_.begin();
     u_int distance = 0;
     for (cacheIter it1 = cache_.begin(); it1 != cache_.end(); ++it1) {
         u_int offset = 0;
         for (cacheIter it2 = buffer_.begin(); it2 != buffer_.end(); ++it2, ++offset) {
             if (*it1 == *it2 && offset > distance) {
+                std::cout << "offset   = " << offset << '\n';
+                std::cout << "distance = " << distance << '\n';
                 distance = offset;
                 most_far = it1;
+                break;
             }
         }
     }   
@@ -169,11 +171,12 @@ weak_perfect::u_int weak_perfect::get_hits() const noexcept {
 class generator {
     using u_int = std::size_t;
     
-    const u_int MAX_CACHE_SIZE = 100;
-    const u_int MAX_DATA_SIZE  = 1000000;
-    const u_int MIN_DATA_SIZE  = 150;
-    const u_int MAX_DATA_VALUE = 1000;
-    const u_int MIN_DATA_VALUE = 1;
+    const u_int MAX_CACHE_SIZE     = 100;
+    const u_int MAX_DATA_SIZE      = 1000000;
+    const u_int MAX_PERF_DATA_SIZE = 10000;
+    const u_int MIN_DATA_SIZE      = 150;
+    const u_int MAX_DATA_VALUE     = 1000;
+    const u_int MIN_DATA_VALUE     = 1;
 
     const u_int MAX_TESTS_NUMBER = 150;
      
@@ -189,11 +192,11 @@ void generator::generate(u_int test_number) {
     if (test_number > MAX_TESTS_NUMBER) {
         test_number = MAX_TESTS_NUMBER;
     }
-    for (u_int count = 0; count < test_number; ++count) {
-#ifdef __LFU_TEST_GENERATING__
+    for (u_int count = 1; count <= test_number; ++count) {
+#ifdef LFU_TEST_GENERATING_
         generate_lfu_files(count);
 #endif
-#ifdef __PERFECT_TEST_GENERATING__
+#ifdef PERFECT_TEST_GENERATING_
         generate_perfect_files(count);
 #endif
     }
@@ -228,7 +231,7 @@ void generator::generate_perfect_files(u_int test_number) {
     std::ofstream test_file("../perfect_resources/tests/" + test_file_name + ".txt");
 
     u_int cache_cap = (std::rand() + 1) % MAX_CACHE_SIZE;
-    u_int data_size = (std::rand() * std::rand() + MIN_DATA_SIZE) % MAX_DATA_SIZE;
+    u_int data_size = (std::rand() + MIN_DATA_SIZE) % MAX_PERF_DATA_SIZE;
     
     std::vector<u_int> data{};
     data.reserve(data_size);
@@ -239,9 +242,7 @@ void generator::generate_perfect_files(u_int test_number) {
         data.push_back(key);
         test_file << ' ' <<  key;
     }
-    std::cout << "HELL\n";
     weak_perfect cache(cache_cap, data.begin(), data.end());
-    std::cout << "NOOO\n";
     std::string answ_name = "../perfect_resources/answers/answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
     answer << cache.get_hits();
