@@ -15,5 +15,5 @@ int main(int argc, const char* argv[]) {
     }
 
     yLAB::compare<std::string, std::size_t> comp(capacity, test_file);
-    comp.dump( {argv[1]} );
+    comp.dump(file_name);
 }

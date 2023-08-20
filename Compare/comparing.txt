@@ -1,15 +1,14 @@
-
 ----------------------------------------------------------------
-                         file name:      ../../tests/lfu_resources/tests/test43.txt
-                         cache capacity: 90
-                         data_size:      981361
+                         file name:      test50.txt
+                         cache capacity: 66
+                         data_size:      3904
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
                               Hits                              
-lfu: 88088
-perfect: 370738
+lfu: 265
+perfect: 1231
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
                               Time                              
-lfu: 0.0635981
-perfect: 0.420998
+lfu: 0.0158939
+perfect: 0.0309323
 ----------------------------------------------------------------
 
