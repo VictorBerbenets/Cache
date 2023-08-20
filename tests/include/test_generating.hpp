@@ -20,6 +20,7 @@ class weak_lfu {
 
     cacheIter find_minimum_freq(); //find key with minimum frequency
     bool is_full() const noexcept;
+    cacheIter find_last(size_type freq);
     cacheIter find(Key key);
 public:
     weak_lfu(size_type capacity);
@@ -42,16 +43,33 @@ bool weak_lfu::lookup_update(Key key) {
     auto cache_iter = find(key);
     if (cache_iter == cache_.end()) { // not found
         if (is_full()) {
-            auto replace_iter = find_minimum_freq();
-            cache_.erase(replace_iter);
+            cache_.pop_front();
         } else {
             ++cache_size_;
         }
-        cache_.emplace_back(key, 1);
+        auto after_one_freq = std::find_if(cache_.begin(), cache_.end(), 
+                [](auto&& iter) { return iter.second != 1; });
+        cache_.emplace(after_one_freq, key, 1);
         return false;
     }
+
     cache_iter->second += 1;
+    size_type freq = cache_iter->second;
+    cache_.erase(cache_iter);
+    auto inserted_iter = find_last(freq);
+    if (inserted_iter == cache_.end()) {
+        cache_.emplace_back(key, freq);
+    } else {
+        cache_.emplace(inserted_iter, key, freq);
+    }
+
     return true;
+}
+
+weak_lfu::cacheIter weak_lfu::find_last(size_type freq) {
+    auto ret_value = std::find_if(cache_.rbegin(), cache_.rend(),
+                        [&freq](auto&& it) {return it.second <= freq;});
+    return ret_value.base();
 }
 
 weak_lfu::cacheIter weak_lfu::find(Key key) {
@@ -64,20 +82,8 @@ bool weak_lfu::is_full() const noexcept {
 }
 
 weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
-    cacheIter min_freq = cache_.begin();
-    size_type min   = UINT_MAX; //for the first compare
-    size_type count = 0;
-//    for (auto it = cache_.begin(); it != cache_.end() && count < cache_size_; ++it, ++count) {
-    for (auto it = cache_.begin(); it != cache_.end(); ++it, ++count) {
-        if (it->second < min) {
-            min = it->second;
-            min_freq = it;
-            if (min == 1) {
-                break;
-            }
-        }
-    }
-    return min_freq;
+    return std::min_element(cache_.begin(), cache_.end(), 
+                    [](auto&& it1, auto&& it2) {return it1.second < it2.second;});
 }
 //------------------------------------------------------------------------------------------//
 

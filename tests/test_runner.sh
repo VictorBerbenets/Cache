@@ -51,6 +51,7 @@ function run_tests {
         for ((i = 1; i <= $tests_number; ++i))
         do  
                 $perfect_cache_out < ${perfect_tests}test${i}.txt > compare_file  
+                echo -n -e "${purple}Test ${i}: ${usual}"
                 if diff -w ${perfect_ans}answ${i}.txt compare_file &>/dev/null
                 then
                     echo -e "${green}passed${usual}"
