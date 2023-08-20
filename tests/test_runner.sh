@@ -75,11 +75,13 @@ function build_caches {
 #main part
 is_lfu="false"
 is_perfect="false"
+error="false"
 
 build_caches
 
 if [ $# -lt 2 ] || [ $# -gt 3 ]
 then
+    error="true"
     echo -e "${red}invalid number of arguments:${usual} $#. Expected 2 or 3"
 #if we have two args(cache name and number of tests)
 elif [ $# -eq 2 ]
@@ -92,6 +94,7 @@ then
     then
         is_perfect="true"
     else
+        error="true"
         echo -e "${red}unknown command:${usual} $1"
     fi
 #if we have three args(cache name1(2) cache name2(1) and number of tests)
@@ -106,9 +109,12 @@ else
         is_perfect="true"
         is_lfu="true"
     else
+        error="true"
         echo -e "${red}invalid set of cache's names :${usual} $1 $2"
     fi
 fi
 
-run_tests 
-
+if [ $error = "false" ]
+then
+    run_tests 
+fi
