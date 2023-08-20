@@ -62,7 +62,6 @@ lfu_cache<T, KeyT>::lfu_cache(size_type capacity):
 template<typename T, typename KeyT>
 bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const page_t& value) {
     if (!capacity_) {
-        std::cout << "Cache is not useful: cache's capacity == 0" << '\n';
         return false;
     }
     auto is_found = hash_table_.find(key);
