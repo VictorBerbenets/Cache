@@ -19,21 +19,23 @@ perfect_cache_out="./../Perfect_Caching/build/perfect_cache"
 
 function run_tests {
     echo "generating tests..."
-    cd tests/build
+    cd build
     make
-    ./testing
-    cd ../../
+    ./testing $tests_number
+    cd ../
     echo "done"
+
+    echo "tests number = $tests_number"
     
     touch compare_file
-    if [$is_lfu = "true"]
+    if [ $is_lfu = "true" ]
     then
         echo "lfu tests:"
-        for ((int i = 1; i <= $tests_number; ++i))
+        for ((i = 1; i <= $tests_number; ++i))
         do  
                 $lfu_cache_out < ${lfu_tests}test${i}.txt > $compare_file  
                 echo -n "Test ${i}: "
-                if diff -w ${lfu_ans}/answer${i}.txt compare_file
+                if diff -w ${lfu_ans}answ${i}.txt compare_file
                 then
                     echo echo -e "${red}failed${usual}"
                 else
@@ -41,14 +43,14 @@ function run_tests {
                 fi
         done
     fi
-    if [$is_perfect = "true"]
+    if [ $is_perfect = "true" ]
     then
         echo "perfect tests:"
-        for ((int i = 1; i <= $tests_number; ++i))
+        for ((i = 1; i <= $tests_number; ++i))
         do  
                 $perfect_cache_out < ${perfect_tests}test${i}.txt > $compare_file  
                 echo -n "Test ${i}: "
-                if diff -w ${perfect_ans}/answer${i}.txt compare_file
+                if diff -w ${perfect_ans}answ${i}.txt compare_file
                 then
                     echo echo -e "${red}failed${usual}"
                 else
@@ -73,17 +75,17 @@ is_perfect="false"
 
 build_caches
 
-if [$# -lt 2] || [$# -gt 3]
+if [ $# -lt 2 ] || [ $# -gt 3 ]
 then
     echo "invalid number of arguments: $#. Expected 2 or 3"
 #if we have two args(cache name and number of tests)
-elif [$# -eq 2]
+elif [ $# -eq 2 ]
 then
     tests_number=$2
-    if [$1 = "lfu"]
+    if [ $1 = "lfu" ]
     then
         is_lfu="true"
-    elif [$1 = "perfect"]
+    elif [ $1 = "perfect" ]
     then
         is_perfect="true"
     else
@@ -92,19 +94,18 @@ then
 #if we have three args(cache name1(2) cache name2(1) and number of tests)
 else
     tests_number="$3"
-    if [$1 = "lfu"] && [$2 = "perfect"]
+    if [ $1 = "lfu" ] && [ $2 = "perfect" ]
     then
         is_lfu="true"
         is_perfect="true"
-    elif [$1 = "perfect"] && [$2 = "lfu"]
+    elif [ $1 = "perfect" ] && [ $2 = "lfu" ]
     then
         is_perfect="true"
         is_lfu="true"
     else
         echo "invalid set of cache's names : $1 $2"
+    fi
 fi
 
 run_tests 
-
-
 
