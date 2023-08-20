@@ -102,6 +102,9 @@ void perfect_cache<T, KeyT>::fill_buffers(Iter first, Iter last) {
 
 template<typename T, typename KeyT>
 void perfect_cache<T, KeyT>::fill_cache() {
+    if (!capacity_) {
+        return ;
+    }
     for (auto& buff_iter : ordered_buffer_) {
         //if element not in cache
         if (cache_checker_.find(buff_iter.first) == cache_checker_.end()) {
