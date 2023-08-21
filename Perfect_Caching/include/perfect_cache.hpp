@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 namespace yLAB {
+
 template<typename T, typename KeyT = int>
 class perfect_cache {
 public:    
@@ -33,9 +34,10 @@ public:
     void give_data(std::istream& is);
 template<typename Iter>
     void give_data(Iter first, Iter last);
-
-    bool is_full() const noexcept;
+#ifdef DEBUG
     void print_cache() const;
+#endif
+    bool is_full() const noexcept;
     void clear() noexcept;
     size_type get_hits() const noexcept { return hits_; };
 private:
@@ -173,6 +175,7 @@ void perfect_cache<T, KeyT>::clear() noexcept {
     hits_       = 0;
 }
 
+#ifdef DEBUG
 template<typename T, typename KeyT>
 void perfect_cache<T, KeyT>::print_cache() const {
     std::cout << "cache: ";
@@ -181,8 +184,8 @@ void perfect_cache<T, KeyT>::print_cache() const {
     }
     std::cout << '\n';
 }
+#endif
 
 }; // <-- namespace yLAB
 
 #endif
-
