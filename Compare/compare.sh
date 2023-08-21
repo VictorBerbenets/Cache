@@ -34,12 +34,14 @@ function clear_compareTXT {
 }
 #---------------------------------------------#
 
+#---------------------------------------------#
 function remove_old_data {
     rm ${del_files}/*answ*
     rm ${comp_files}/*test*
 }
+#---------------------------------------------#
 
-###main()###
+# main() #
 error="false"
 compares_count=0
 
@@ -58,5 +60,4 @@ then
     clear_compareTXT
     generate_comp_files
 fi
-#---------------------------------------------#
 
