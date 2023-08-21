@@ -77,9 +77,11 @@ std::string& compare<T, KeyT>::get_clean_file_name(std::string& file_name) {
 
 template<typename T, typename KeyT>
 void compare<T, KeyT>::dump(std::string& test_file_name) {
-    std::string comp_file = "../comparing.txt";
+    std::string comp_file = "comparing.txt";
     std::ofstream dump_file(comp_file, std::ios::app);
-
+    if (!dump_file.is_open()) {
+        throw std::invalid_argument{"error while opening compare file\n"};
+    }
     std::string clean_file_name = get_clean_file_name(test_file_name); 
 
     dump_file << "----------------------------------------------------------------\n";
