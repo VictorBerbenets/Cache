@@ -162,8 +162,6 @@ std::size_t weak_perfect::get_hits() const noexcept {
 //------------------------------------------------------------------------------------------//
 
 class generator {
-    using u_int = std::size_t;
-    
     const u_int MAX_CACHE_SIZE     = 100;
     const u_int MAX_DATA_SIZE      = 1000000;
     const u_int MAX_PERF_DATA_SIZE = 100000;
