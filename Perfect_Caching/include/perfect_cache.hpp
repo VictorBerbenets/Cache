@@ -10,10 +10,12 @@
 #include <stdexcept>
 
 namespace yLAB {
-    using size_type = std::size_t;
 template<typename T, typename KeyT = int>
 class perfect_cache {
+public:    
+    using size_type = std::size_t;
     using page_t         = std::pair<KeyT, T>;
+private:
     using cacheIter      = typename std::vector<page_t>::iterator;
     using elements_order = std::deque<size_type>;
  
@@ -34,9 +36,9 @@ template<typename Iter>
     void give_data(Iter first, Iter last);
 
     bool is_full() const noexcept;
-    size_type get_hits() const noexcept;
     void print_cache() const;
     void clear() noexcept;
+    size_type get_hits() const noexcept { return hits_; };
 private:
     const size_type capacity_;
     std::vector<page_t> cache_;
@@ -165,11 +167,6 @@ void perfect_cache<T, KeyT>::push_cache(page_t&& push_value) {
 template<typename T, typename KeyT>
 bool perfect_cache<T, KeyT>::is_full() const noexcept {
     return cache_.size() == capacity_;
-}
-
-template<typename T, typename KeyT>
-size_type perfect_cache<T, KeyT>::get_hits() const noexcept {
-    return hits_;
 }
 
 template<typename T, typename KeyT>
