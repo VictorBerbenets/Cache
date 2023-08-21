@@ -11,28 +11,30 @@
 //|----------------------------|//
 
 namespace yLAB { 
-    using size_type = std::size_t;  
 
 template<typename T, typename KeyT = int>
 class lfu_cache {
+public:
+    using size_type = std::size_t;  
+    using page_t    = std::pair<T, KeyT>;
+private:
     struct item;
     struct frequencyItem;
     
-    using page_t     = std::pair<T, KeyT>;
-    using freqIter   = typename std::list<frequencyItem>::iterator;
-    using itemIter   = typename std::list<item>::iterator;  
+    using freqIter = typename std::list<frequencyItem>::iterator;
+    using itemIter = typename std::list<item>::iterator;  
     
     void insert_item(KeyT key, const page_t& value, freqIter iter);
     void remove_last_item();
 public:
-    explicit lfu_cache(size_type capacity);
+    explicit lfu_cache(size_type capacity):
+                    capacity_{capacity} {};
     ~lfu_cache() = default;
 
     bool is_full() const noexcept;
     bool lookup_update(KeyT key, const page_t& value);
     void print_cache() const;
 private:
-    size_type cache_size_; 
     const size_type capacity_;
     std::unordered_map<KeyT, itemIter> hash_table_;
     std::list<frequencyItem> cache_;
@@ -56,10 +58,6 @@ private:
 }; // <-- class lfu_cache
 
 template<typename T, typename KeyT>
-lfu_cache<T, KeyT>::lfu_cache(size_type capacity): 
-    cache_size_{0}, capacity_{capacity} {};
-
-template<typename T, typename KeyT>
 bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const page_t& value) {
     if (!capacity_) {
         return false;
@@ -74,10 +72,9 @@ bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const page_t& value) {
             }
         } else {
             //if cache has't freq-list with freq_ == 1
-            if (cache_.begin()->freq_ != 1 || !cache_size_) {
+            if (cache_.begin()->freq_ != 1 || !hash_table_.size()) {
                 cache_.emplace_front(1);                
             }
-            ++cache_size_;
         }
         insert_item(key, value, cache_.begin());
         return false;
@@ -102,7 +99,7 @@ bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const page_t& value) {
 
 template<typename T, typename KeyT>
 bool lfu_cache<T, KeyT>::is_full() const noexcept {
-    return cache_size_ == capacity_;
+    return hash_table_.size() == capacity_;
 }
 
 template<typename T, typename KeyT>

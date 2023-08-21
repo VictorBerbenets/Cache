@@ -12,14 +12,14 @@ std::size_t check_hits(yLAB::lfu_cache<T, KeyT>& cch, std::size_t number) {
         if (!std::cin.good()) {
             throw std::runtime_error{"Reading data error!\n"};
         }
-        std::pair<T, KeyT> value(t_val, key);
+        typename yLAB::lfu_cache<T, KeyT>::page_t value(t_val, key);
         hits += cch.lookup_update(key, value);
     }
     return hits;
 }
 
 int main() {
-    using size_type = yLAB::size_type;
+    using size_type = yLAB::lfu_cache<std::string, std::size_t>::size_type;
 
     size_type capacity;
     std::cin >> capacity;
