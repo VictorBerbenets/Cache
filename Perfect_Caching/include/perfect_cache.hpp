@@ -38,19 +38,18 @@ template<typename Iter>
     void print_cache() const;
     void clear() noexcept;
 private:
-    size_type cache_size_;
     const size_type capacity_;
     std::vector<page_t> cache_;
     std::unordered_set<KeyT> cache_checker_; //for checking if element already in cache
     std::list<page_t> ordered_buffer_; //for saving data in input order
     std::unordered_map<KeyT, elements_order> unordered_buffer_; // save all data for finding  
 
-    size_type hits_;
+    size_type hits_ = 0;
 }; // <-- class cache
 
 template<typename T, typename KeyT>
 perfect_cache<T, KeyT>::perfect_cache(size_type capacity):
-                cache_size_{0}, capacity_{capacity}, hits_{0} {
+                capacity_{capacity} {
     cache_.reserve(capacity_);
 }
 
@@ -161,12 +160,11 @@ void perfect_cache<T, KeyT>::remove_value_entry_number(KeyT key) {
 template<typename T, typename KeyT>
 void perfect_cache<T, KeyT>::push_cache(page_t&& push_value) {
     cache_.push_back(push_value);
-    ++cache_size_;
 }
 
 template<typename T, typename KeyT>
 bool perfect_cache<T, KeyT>::is_full() const noexcept {
-    return cache_size_ == capacity_;
+    return cache_.size() == capacity_;
 }
 
 template<typename T, typename KeyT>
@@ -180,7 +178,6 @@ void perfect_cache<T, KeyT>::clear() noexcept {
     ordered_buffer_.clear();
     cache_checker_.clear();
     unordered_buffer_.clear();
-    cache_size_ = 0;
     capacity_   = 0;
     hits_       = 0;
 }
