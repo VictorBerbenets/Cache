@@ -14,7 +14,7 @@ template<typename T, typename KeyT = int>
 class perfect_cache {
 public:    
     using size_type = std::size_t;
-    using page_t         = std::pair<KeyT, T>;
+    using page_t    = std::pair<KeyT, T>;
 private:
     using cacheIter      = typename std::vector<page_t>::iterator;
     using elements_order = std::deque<size_type>;
@@ -25,7 +25,6 @@ template<typename Iter>
     void fill_cache();
     void replace_cache_value(cacheIter cache_iter, page_t&& replacement);
     void remove_value_entry_number(KeyT key);
-    void push_cache(page_t&& push_value);
     cacheIter find_furthest_value();
 public:
     perfect_cache(size_type capacity);
@@ -115,7 +114,7 @@ void perfect_cache<T, KeyT>::fill_cache() {
                 auto replace_iter = find_furthest_value();
                 replace_cache_value(replace_iter, {buff_iter.first, buff_iter.second});
             } else {
-                push_cache({buff_iter.first, buff_iter.second});
+                cache_.emplace_back(buff_iter.first, buff_iter.second);
             }
         } else {
             ++hits_;
@@ -157,11 +156,6 @@ void perfect_cache<T, KeyT>::remove_value_entry_number(KeyT key) {
     if (unordered_buffer_[key].empty()) {
         unordered_buffer_.erase(key);
     }
-}
-
-template<typename T, typename KeyT>
-void perfect_cache<T, KeyT>::push_cache(page_t&& push_value) {
-    cache_.push_back(push_value);
 }
 
 template<typename T, typename KeyT>
