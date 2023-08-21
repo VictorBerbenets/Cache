@@ -42,6 +42,7 @@ function run_tests {
                 else
                     echo -e "${red}failed${usual}"
                 fi
+                echo -en "${blue}hits:${usual} "
                 cat compare_file
         done
     fi
@@ -58,6 +59,7 @@ function run_tests {
                 else
                     echo -e "${red}failed${usual}"
                 fi
+                echo -en "${blue}hits:${usual} "
                 cat compare_file
         done
     fi
