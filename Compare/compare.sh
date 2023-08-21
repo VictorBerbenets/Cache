@@ -19,7 +19,6 @@ function generate_comp_files {
     echo -e "${blue}generating compare files...${usual}"
     ${tests_out_file} ${compares_count}
     cd ../../Compare
-    ls ${comp_files}
     for file in ${comp_files}*
     do
         ${comp_out} $file
@@ -35,6 +34,11 @@ function clear_compareTXT {
 }
 #---------------------------------------------#
 
+function remove_old_data {
+    rm ${del_files}/*answ*
+    rm ${comp_files}/*test*
+}
+
 ###main()###
 error="false"
 compares_count=0
@@ -44,15 +48,14 @@ then
     error="true"
     echo -e "${red}error:${usual} invalid set of arguments"
 elif ! [ `ls ${comp_files} | wc -l` -eq 0 ] 
-then    
-    rm ${del_files}/*answ*
-    rm ${comp_files}/*test*
+then
+    remove_old_data
 fi
 
 compares_count=$1
 if [ ${error} = "false" ]
 then
-   # clear_compareTXT
+    clear_compareTXT
     generate_comp_files
 fi
 #---------------------------------------------#
