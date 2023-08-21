@@ -11,29 +11,29 @@
 #define PERFECT_TEST_GENERATING_
 
 namespace Tests {
-    using size_type = std::size_t;
+    using u_int = std::size_t;
 //------------------------------------------------------------------------------------------//
 class weak_lfu {
-    using Key = size_type;
-    using cacheType = std::pair<Key, size_type>;
+    using Key = u_int;
+    using cacheType = std::pair<Key, u_int>;
     using cacheIter = typename std::list<cacheType>::iterator;
 
     cacheIter find_minimum_freq(); //find key with minimum frequency
     bool is_full() const noexcept;
-    cacheIter find_last(size_type freq);
+    cacheIter find_last(u_int freq);
     cacheIter find(Key key);
 public:
-    weak_lfu(size_type capacity);
+    weak_lfu(u_int capacity);
     weak_lfu() = default;
 
     bool lookup_update(Key key);
 private:
     std::list<cacheType> cache_;
-    size_type cache_size_;
-    size_type capacity_;
+    u_int cache_size_;
+    u_int capacity_;
 };
 
-weak_lfu::weak_lfu(size_type capacity):
+weak_lfu::weak_lfu(u_int capacity):
         cache_size_{0}, capacity_{capacity} {}
 
 bool weak_lfu::lookup_update(Key key) {
@@ -54,27 +54,26 @@ bool weak_lfu::lookup_update(Key key) {
     }
 
     cache_iter->second += 1;
-    size_type freq = cache_iter->second;
+    u_int freq = cache_iter->second;
     cache_.erase(cache_iter);
-    auto inserted_iter = find_last(freq);
-    if (inserted_iter == cache_.end()) {
+    auto emplace_iter = find_last(freq);
+    if (emplace_iter == cache_.end()) {
         cache_.emplace_back(key, freq);
     } else {
-        cache_.emplace(inserted_iter, key, freq);
+        cache_.emplace(emplace_iter, key, freq);
     }
-
     return true;
 }
 
-weak_lfu::cacheIter weak_lfu::find_last(size_type freq) {
+weak_lfu::cacheIter weak_lfu::find_last(u_int freq) {
     auto ret_value = std::find_if(cache_.rbegin(), cache_.rend(),
-                        [&freq](auto&& it) {return it.second <= freq;});
+                        [&freq](auto&& it) { return it.second <= freq; });
     return ret_value.base();
 }
 
 weak_lfu::cacheIter weak_lfu::find(Key key) {
     return std::find_if(cache_.begin(), cache_.end(),
-                        [&key](auto&& it) {return it.first == key;});
+                        [&key](auto&& it) { return it.first == key; });
 }
 
 bool weak_lfu::is_full() const noexcept {
@@ -83,12 +82,11 @@ bool weak_lfu::is_full() const noexcept {
 
 weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
     return std::min_element(cache_.begin(), cache_.end(), 
-                    [](auto&& it1, auto&& it2) {return it1.second < it2.second;});
+                    [](auto&& it1, auto&& it2) { return it1.second < it2.second; });
 }
 //------------------------------------------------------------------------------------------//
 
 class weak_perfect {
-    using u_int     = std::size_t;
     using Key       = u_int;
     using cacheIter = typename std::vector<Key>::iterator;
     
@@ -168,7 +166,7 @@ class generator {
     
     const u_int MAX_CACHE_SIZE     = 100;
     const u_int MAX_DATA_SIZE      = 1000000;
-    const u_int MAX_PERF_DATA_SIZE = 10000;
+    const u_int MAX_PERF_DATA_SIZE = 100000;
     const u_int MIN_DATA_SIZE      = 150;
     const u_int MAX_DATA_VALUE     = 1000;
     const u_int MIN_DATA_VALUE     = 1;
