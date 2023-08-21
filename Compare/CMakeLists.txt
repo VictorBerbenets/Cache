@@ -1,16 +1,21 @@
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.15)
 
 project(compare)
 
-set(CMAKE_BUILD_TYPE Release)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y") 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-
-include_directories( "${PROJECT_SOURCE_DIR}/../LFU_Cache/include"
-                     "${PROJECT_SOURCE_DIR}/../Perfect_Caching/include"
-                     "${PROJECT_SOURCE_DIR}/include")
-
-                     #set(main src/main.cpp)
 add_executable(${PROJECT_NAME} src/main.cpp)
+
+set_target_properties(
+    ${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+    COMPILE_FLAGS " -Wall -Wextra "
+)
+
+target_include_directories(     
+                            ${PROJECT_NAME}
+                            PRIVATE                            
+                            ${CMAKE_CURRENT_SOURCE_DIR}/include
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../LFU_Cache/include
+                            ${CMAKE_CURRENT_SOURCE_DIR}/../Perfect_Caching/include
+)
 
