@@ -13,7 +13,6 @@ target_include_directories(
 option(PERFECT_GENERATING "whether generate perfect tests or lfu tests" OFF)
 
 if (PERFECT_GENERATING)
-    message("in perfect")
     target_compile_definitions(
                               ${PROJECT_NAME}
                               PRIVATE
