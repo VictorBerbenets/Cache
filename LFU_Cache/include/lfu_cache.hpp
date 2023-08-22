@@ -34,7 +34,8 @@ public:
     ~lfu_cache() = default;
 
     bool is_full() const noexcept;
-    bool lookup_update(KeyT key, const page_t& value);
+template<typename F>
+    bool lookup_update(KeyT key, F get_page);
     void print_cache() const;
 private:
     const size_type capacity_;
@@ -59,7 +60,8 @@ private:
 }; // <-- class lfu_cache
 
 template<typename T, typename KeyT>
-bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const page_t& value) {
+template<typename F>
+bool lfu_cache<T, KeyT>::lookup_update(KeyT key, F get_page) {
     auto is_found = hash_table_.find(key);
     if (is_found == hash_table_.end()) {
         if (is_full()) {    
@@ -74,7 +76,7 @@ bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const page_t& value) {
                 cache_.emplace_front(1);                
             }
         }
-        insert_item(value, cache_.begin());
+        insert_item(get_page(key), cache_.begin());
         return false;
     } 
    //element was found in hash_table //
@@ -84,10 +86,10 @@ bool lfu_cache<T, KeyT>::lookup_update(KeyT key, const page_t& value) {
     (cache_iter->freq_list_).erase(is_found->second);//erase item on found key
     //looking for next suitable frequencyItem: if next one isn't suitable than insert your own
     if (next_cache_iter != cache_.end() && next_cache_iter->freq_ == (cache_iter->freq_ + 1)) {
-        insert_item(value, next_cache_iter);
+        insert_item(get_page(key), next_cache_iter);
     } else {
         freqIter inserted_cell = cache_.emplace(next_cache_iter, cache_iter->freq_ + 1); 
-        insert_item(value, inserted_cell);
+        insert_item(get_page(key), inserted_cell);
     }
     if ((cache_iter->freq_list_).empty()) {
         cache_.erase(cache_iter);

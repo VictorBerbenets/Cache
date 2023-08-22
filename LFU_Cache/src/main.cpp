@@ -5,6 +5,13 @@
 template<typename T, typename KeyT = int>
 std::size_t check_hits(yLAB::lfu_cache<T, KeyT>& cch, std::size_t number) {
     std::size_t hits = 0;
+    using page_t = typename yLAB::lfu_cache<T, KeyT>::page_t; 
+    auto get_page = [](KeyT key) -> page_t {
+                        page_t page;
+                        page.second = key;
+                        return page;
+                        };
+
     for (std::size_t count = 0; count < number; ++count) {
         std::size_t key{};
         T t_val{};
@@ -12,8 +19,7 @@ std::size_t check_hits(yLAB::lfu_cache<T, KeyT>& cch, std::size_t number) {
         if (!std::cin.good()) {
             throw std::runtime_error{"Reading data error!\n"};
         }
-        typename yLAB::lfu_cache<T, KeyT>::page_t value(t_val, key);
-        hits += cch.lookup_update(key, value);
+        hits += cch.lookup_update(key, get_page);
     }
     return hits;
 }
