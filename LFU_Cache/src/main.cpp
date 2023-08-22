@@ -14,7 +14,6 @@ std::size_t check_hits(yLAB::lfu_cache<T, KeyT>& cch, std::size_t number) {
 
     for (std::size_t count = 0; count < number; ++count) {
         std::size_t key{};
-        T t_val{};
         std::cin >> key;
         if (!std::cin.good()) {
             throw std::runtime_error{"Reading data error!\n"};
