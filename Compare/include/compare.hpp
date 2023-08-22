@@ -14,12 +14,12 @@ class compare {
 public:
     compare(std::size_t caches_capacity, std::istream& is);
     ~compare() = default;
-    
+
     void dump(std::string& test_file_name);
-    
+
     std::string& get_clean_file_name(std::string& full_file_name);
 
-    double get_lfu_time() const; 
+    double get_lfu_time() const;
     double get_perfect_time() const;
     std::size_t get_lfu_hits() const noexcept;
     std::size_t get_perfect_hits() const noexcept;
@@ -28,14 +28,16 @@ private:
     perfect_cache<T, KeyT> perfect_;
     std::size_t lfu_hits_ = 0, perfect_hits_ = 0;
     std::chrono::duration<double> lfu_time_, perfect_time_;
-    
+
     std::size_t data_size_;
     std::size_t capacity_;
 }; // <-- class compare
 
 template<typename T, typename KeyT>
-compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is): 
-                lfu_{caches_cap}, perfect_{caches_cap}, capacity_{caches_cap} {
+compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is):
+                lfu_{caches_cap},
+                perfect_{caches_cap},
+                capacity_{caches_cap} {
     using size_type = std::size_t;
 
     is >> data_size_;
@@ -63,10 +65,10 @@ compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is):
     lfu_time_    = lfu_end - lfu_start;
     //checking perfect cache 
     auto perfect_start = std::chrono::high_resolution_clock::now();
-    perfect_.give_data(data.begin(), data.end()); 
+    perfect_.give_data(data.begin(), data.end());
     perfect_hits_    = perfect_.get_hits();
     auto perfect_end = std::chrono::high_resolution_clock::now();
-    perfect_time_    = perfect_end - perfect_start; 
+    perfect_time_    = perfect_end - perfect_start;
 }
 
 template<typename T, typename KeyT>
@@ -87,7 +89,7 @@ void compare<T, KeyT>::dump(std::string& test_file_name) {
     if (!dump_file.is_open()) {
         throw std::invalid_argument{"error while opening compare file\n"};
     }
-    std::string clean_file_name = get_clean_file_name(test_file_name); 
+    std::string clean_file_name = get_clean_file_name(test_file_name);
 
     dump_file << "----------------------------------------------------------------\n";
     dump_file << "                         file name:      " << clean_file_name << '\n';
