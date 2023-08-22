@@ -5,9 +5,9 @@
 #include <ctime>
 #include <string>
 #include <fstream>
+#include <filesystem>
 #include <algorithm>
 
-#define LFU_TEST_GENERATING_
 #define PERFECT_TEST_GENERATING_
 
 namespace Tests {
@@ -162,7 +162,18 @@ std::size_t weak_perfect::get_hits() const noexcept {
 }
 //------------------------------------------------------------------------------------------//
 
+namespace dirrs {
+    const std::string lfu_dirr           = "../lfu_resources";
+    const std::string lfu_dirr_tests     = "../lfu_resources/tests/";
+    const std::string lfu_dirr_answs     = "../lfu_resources/answers/";
+    const std::string perfect_dirr       = "../perfect_resources";
+    const std::string perfect_dirr_tests = "../perfect_resources/tests/"; 
+    const std::string perfect_dirr_answs = "../perfect_resources/answers/";
+};
+
 class generator {
+    static constexpr u_int MAX_TESTS_NUMBER = 150;
+    
     static constexpr u_int MAX_CACHE_SIZE     = 100;
     static constexpr u_int MIN_CACHE_SIZE     = 1;
     static constexpr u_int MAX_DATA_SIZE      = 1000000;
@@ -170,13 +181,14 @@ class generator {
     static constexpr u_int MIN_DATA_SIZE      = 10;
     static constexpr u_int MAX_DATA_VALUE     = 1000;
     static constexpr u_int MIN_DATA_VALUE     = 1;
-
-    static constexpr u_int MAX_TESTS_NUMBER = 150;
-    
+ 
     using gener_type = std::mt19937;
 
     void init_generator(gener_type& generator);
     u_int random(gener_type& generator, u_int min_value, u_int max_value);
+    
+    void create_lfu_dirrs();
+    void create_perfect_dirrs();
 
     void generate_lfu_files(u_int test_number, gener_type& generator);
     void generate_perfect_files(u_int test_number, gener_type& generator);
@@ -185,27 +197,48 @@ public:
 };
 
 void generator::generate(u_int test_number) {
-//    std::srand(std::time(nullptr));
     gener_type generator;
-    init_generator(generator);
-
+    init_generator(generator);   
+#ifdef PERFECT_TEST_GENERATING_    
+    create_perfect_dirrs();
+#else
+    create_lfu_dirrs();
+#endif
     if (test_number > MAX_TESTS_NUMBER) {
         test_number = MAX_TESTS_NUMBER;
     }
     for (u_int count = 1; count <= test_number; ++count) {
-#ifdef LFU_TEST_GENERATING_
-        generate_lfu_files(count, generator);
-#endif
 #ifdef PERFECT_TEST_GENERATING_
         generate_perfect_files(count, generator);
+#else
+        generate_lfu_files(count, generator);
 #endif
+    }
+}
+
+void generator::create_lfu_dirrs() {
+    std::filesystem::directory_entry lfu_source_dirr(dirrs::lfu_dirr);
+    if (!lfu_source_dirr.is_directory()) {
+        std::filesystem::create_directory(dirrs::lfu_dirr);
+        std::filesystem::create_directory(dirrs::lfu_dirr_tests);
+        std::filesystem::create_directory(dirrs::lfu_dirr_answs);
+    }
+}
+
+void generator::create_perfect_dirrs() {
+    std::filesystem::directory_entry perfect_source_dirr(dirrs::perfect_dirr);
+    if (!perfect_source_dirr.is_directory()) {
+        std::filesystem::create_directory(dirrs::perfect_dirr);
+        std::filesystem::create_directory(dirrs::perfect_dirr_tests);
+        std::filesystem::create_directory(dirrs::perfect_dirr_answs);
     }
 }
 
 void generator::generate_lfu_files(u_int test_number, gener_type& generator) {
     std::string test_number_str = std::to_string(test_number);
     std::string test_file_name = "test" + test_number_str + ".txt";
-    std::ofstream test_file("../lfu_resources/tests/" + test_file_name);
+
+    std::ofstream test_file(dirrs::lfu_dirr_tests + test_file_name);
 
     u_int cache_cap = random(generator, MIN_CACHE_SIZE, MAX_CACHE_SIZE);
     u_int data_size = random(generator, MIN_DATA_SIZE, MAX_DATA_SIZE); 
@@ -221,7 +254,7 @@ void generator::generate_lfu_files(u_int test_number, gener_type& generator) {
     }
     test_file << ' ';
 
-    std::string answ_name = "../lfu_resources/answers/answ" + test_number_str + ".txt";
+    std::string answ_name = dirrs::lfu_dirr_answs + "answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
     answer << hits << std::endl;
 }
@@ -229,7 +262,8 @@ void generator::generate_lfu_files(u_int test_number, gener_type& generator) {
 void generator::generate_perfect_files(u_int test_number, gener_type& generator) {
     std::string test_number_str = std::to_string(test_number);
     std::string test_file_name  = "test" + test_number_str;
-    std::ofstream test_file("../perfect_resources/tests/" + test_file_name + ".txt");
+    
+    std::ofstream test_file(dirrs::perfect_dirr_tests + test_file_name + ".txt");
 
     u_int cache_cap = random(generator, MIN_CACHE_SIZE, MAX_CACHE_SIZE);
     u_int data_size = random(generator, MIN_DATA_SIZE, MAX_PERF_DATA_SIZE);
@@ -248,7 +282,7 @@ void generator::generate_perfect_files(u_int test_number, gener_type& generator)
     weak_perfect cache(cache_cap, data.begin(), data.end());
     cache.lookup_update();
     
-    std::string answ_name = "../perfect_resources/answers/answ" + test_number_str + ".txt";
+    std::string answ_name = dirrs::perfect_dirr_answs + "answ" + test_number_str + ".txt";
     std::ofstream answer(answ_name);
     answer << cache.get_hits() << std::endl;
 }
