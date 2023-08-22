@@ -8,7 +8,6 @@
 #include <filesystem>
 #include <algorithm>
 
-#define PERFECT_TEST_GENERATING_
 
 namespace Tests {
     using u_int = std::size_t;
@@ -217,20 +216,44 @@ void generator::generate(u_int test_number) {
 }
 
 void generator::create_lfu_dirrs() {
-    std::filesystem::directory_entry lfu_source_dirr(dirrs::lfu_dirr);
+    using namespace std::filesystem;
+    directory_entry lfu_source_dirr(dirrs::lfu_dirr);
     if (!lfu_source_dirr.is_directory()) {
-        std::filesystem::create_directory(dirrs::lfu_dirr);
-        std::filesystem::create_directory(dirrs::lfu_dirr_tests);
-        std::filesystem::create_directory(dirrs::lfu_dirr_answs);
+        create_directory(dirrs::lfu_dirr);
+        create_directory(dirrs::lfu_dirr_tests);
+        create_directory(dirrs::lfu_dirr_answs);
+    } else {
+        //revome old data 
+        const path tests_path{dirrs::lfu_dirr_tests};         
+        const path answs_path{dirrs::lfu_dirr_answs};
+
+        for (auto& dir_iter : directory_iterator{tests_path}) {
+            remove(dir_iter.path());
+        }
+        for (auto& dir_iter : directory_iterator{answs_path}) {
+            remove(dir_iter.path());
+        }
     }
 }
 
 void generator::create_perfect_dirrs() {
-    std::filesystem::directory_entry perfect_source_dirr(dirrs::perfect_dirr);
+    using namespace std::filesystem;
+    directory_entry perfect_source_dirr(dirrs::perfect_dirr);
     if (!perfect_source_dirr.is_directory()) {
-        std::filesystem::create_directory(dirrs::perfect_dirr);
-        std::filesystem::create_directory(dirrs::perfect_dirr_tests);
-        std::filesystem::create_directory(dirrs::perfect_dirr_answs);
+        create_directory(dirrs::perfect_dirr);
+        create_directory(dirrs::perfect_dirr_tests);
+        create_directory(dirrs::perfect_dirr_answs);
+    } else {
+        //revome old data 
+        const path tests_path{dirrs::perfect_dirr_tests};         
+        const path answs_path{dirrs::perfect_dirr_answs};
+
+        for (auto& dir_iter : directory_iterator{tests_path}) {
+            remove(dir_iter.path());
+        }
+        for (auto& dir_iter : directory_iterator{answs_path}) {
+            remove(dir_iter.path());
+        }
     }
 }
 

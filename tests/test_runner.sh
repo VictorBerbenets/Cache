@@ -70,7 +70,7 @@ function build_caches {
     echo -e "${blue}Building caches...${usual}"
     cmake -S ./ -B build/
     cd build/
-    make
+    cmake --build .
     cd ..
     echo -e "${blue}done${usual}"
 }
@@ -87,7 +87,7 @@ build_caches
 if [ $# -ne 1 ]
 then
     error="true"
-    echo -e "${red}invalid number of arguments:${usual} $#. Expected 1, got ${$#}"
+    echo -e "${red}invalid number of arguments: expected 1, got $#"
 else
     tests_number=$1
 fi

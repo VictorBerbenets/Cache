@@ -11,9 +11,12 @@ int main(int argc, const char* argv[]) {
         throw std::invalid_argument{"Got negative number for number of tests\n"};
     }
 
-#if defined(LFU_TEST_GENERATING_) || defined(PERFECT_TEST_GENERATING_)
     Tests::generator gen;
     gen.generate(tests_number);
+    
+#ifdef A
+    std::cout << "A\n";
+#else
+    std::cout << "B\n";
 #endif
-
 }
