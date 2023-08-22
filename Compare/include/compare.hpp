@@ -48,11 +48,16 @@ compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is):
         data.push_back(tmp1);
     }
     //checking lfu cache
+    using page_t = typename lfu_cache<T, KeyT>::page_t;
+    auto get_page = [](KeyT key) -> page_t {
+                page_t page;
+                page.second = key;
+                return page;
+                };
+
     auto lfu_start = std::chrono::high_resolution_clock::now();
     for (auto iter : data) {
-        T value{};
-        typename lfu_cache<T, KeyT>::page_t tmp2(value, iter);
-        lfu_hits_ += lfu_.lookup_update(iter, tmp2);//lfu hits
+        lfu_hits_ += lfu_.lookup_update(iter, get_page);//lfu hits
     }
     auto lfu_end = std::chrono::high_resolution_clock::now();//lfu time
     lfu_time_    = lfu_end - lfu_start;
