@@ -14,6 +14,8 @@ namespace Tests {
     using u_int = std::size_t;
 //------------------------------------------------------------------------------------------//
 class weak_lfu {
+    static constexpr u_int default_cap = 1;
+
     using Key = u_int;
     using cacheType = std::pair<Key, u_int>;
     using cacheIter = typename std::list<cacheType>::iterator;
@@ -34,12 +36,10 @@ private:
 };
 
 weak_lfu::weak_lfu(u_int capacity):
-        cache_size_{0}, capacity_{capacity} {}
+        cache_size_{0}, 
+        capacity_{std::max(default_cap, capacity)} {}
 
 bool weak_lfu::lookup_update(Key key) {
-    if (!capacity_) {
-        return false;
-    }
     auto cache_iter = find(key);
     if (cache_iter == cache_.end()) { // not found
         if (is_full()) {
@@ -87,6 +87,8 @@ weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
 //------------------------------------------------------------------------------------------//
 
 class weak_perfect {
+    static constexpr u_int default_cap = 1;
+    
     using Key       = u_int;
     using cacheIter = typename std::vector<Key>::iterator;
     
@@ -108,14 +110,13 @@ private:
 
 template<typename Iter>
 weak_perfect::weak_perfect(u_int capacity, Iter begin, Iter end): 
-               capacity_{capacity}, buffer_{begin, end}, hits_{0} {
+               capacity_{std::max(default_cap, capacity)}, 
+               buffer_{begin, end}, 
+               hits_{0} {
     cache_.reserve(capacity_);
 }
 
 void weak_perfect::lookup_update() {
-    if (!capacity_) {
-        return ;
-    }
     for (auto buff_it = buffer_.begin(); buff_it != buffer_.end(); ++buff_it) {
         auto pos_it = find(*buff_it);
         if (pos_it == cache_.end()) {
@@ -162,14 +163,14 @@ std::size_t weak_perfect::get_hits() const noexcept {
 //------------------------------------------------------------------------------------------//
 
 class generator {
-    const u_int MAX_CACHE_SIZE     = 100;
-    const u_int MAX_DATA_SIZE      = 1000000;
-    const u_int MAX_PERF_DATA_SIZE = 10000;
-    const u_int MIN_DATA_SIZE      = 150;
-    const u_int MAX_DATA_VALUE     = 1000;
-    const u_int MIN_DATA_VALUE     = 1;
+    static constexpr u_int MAX_CACHE_SIZE     = 100;
+    static constexpr u_int MAX_DATA_SIZE      = 1000000;
+    static constexpr u_int MAX_PERF_DATA_SIZE = 10000;
+    static constexpr u_int MIN_DATA_SIZE      = 150;
+    static constexpr u_int MAX_DATA_VALUE     = 1000;
+    static constexpr u_int MIN_DATA_VALUE     = 1;
 
-    const u_int MAX_TESTS_NUMBER = 150;
+    static constexpr u_int MAX_TESTS_NUMBER = 150;
      
     void generate_lfu_files(u_int test_number);
     void generate_perfect_files(u_int test_number);
