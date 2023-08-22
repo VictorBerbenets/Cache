@@ -179,7 +179,7 @@ public:
 };
 
 void generator::generate(u_int test_number) {
-    std::srand(std::time(NULL));
+    std::srand(std::time(nullptr));
     
     if (test_number > MAX_TESTS_NUMBER) {
         test_number = MAX_TESTS_NUMBER;
