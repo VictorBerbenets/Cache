@@ -13,10 +13,4 @@ int main(int argc, const char* argv[]) {
 
     Tests::generator gen;
     gen.generate(tests_number);
-    
-#ifdef A
-    std::cout << "A\n";
-#else
-    std::cout << "B\n";
-#endif
 }
