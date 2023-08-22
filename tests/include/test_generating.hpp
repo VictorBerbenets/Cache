@@ -14,7 +14,7 @@ namespace Tests {
     using u_int = std::size_t;
 //------------------------------------------------------------------------------------------//
 class weak_lfu {
-    static constexpr u_int default_cap = 1;
+    static constexpr u_int DEFAULT_CAP = 1;
 
     using Key = u_int;
     using cacheType = std::pair<Key, u_int>;
@@ -37,7 +37,7 @@ private:
 
 weak_lfu::weak_lfu(u_int capacity):
         cache_size_{0}, 
-        capacity_{std::max(default_cap, capacity)} {}
+        capacity_{std::max(DEFAULT_CAP, capacity)} {}
 
 bool weak_lfu::lookup_update(Key key) {
     auto cache_iter = find(key);
@@ -87,7 +87,7 @@ weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
 //------------------------------------------------------------------------------------------//
 
 class weak_perfect {
-    static constexpr u_int default_cap = 1;
+    static constexpr u_int DEFAULT_CAP = 1;
     
     using Key       = u_int;
     using cacheIter = typename std::vector<Key>::iterator;
@@ -110,7 +110,7 @@ private:
 
 template<typename Iter>
 weak_perfect::weak_perfect(u_int capacity, Iter begin, Iter end): 
-               capacity_{std::max(default_cap, capacity)}, 
+               capacity_{std::max(DEFAULT_CAP, capacity)}, 
                buffer_{begin, end}, 
                hits_{0} {
     cache_.reserve(capacity_);
