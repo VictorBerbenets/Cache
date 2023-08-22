@@ -25,7 +25,7 @@ std::size_t check_hits(yLAB::lfu_cache<T, KeyT>& cch, std::size_t number) {
 }
 
 int main() {
-    using size_type = yLAB::lfu_cache<std::string, std::size_t>::size_type;
+    using size_type = typename yLAB::lfu_cache<std::string, std::size_t>::size_type;
 
     size_type capacity;
     std::cin >> capacity;

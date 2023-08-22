@@ -47,7 +47,8 @@ private:
         freqIter fr_iter_;
         //constructor for list emplace() method    
         item(const page_t& value, freqIter it):
-            value_{value}, fr_iter_{it} {};
+            value_{value},
+            fr_iter_{it} {};
     };
     
     struct frequencyItem {
