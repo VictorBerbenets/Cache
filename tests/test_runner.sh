@@ -29,13 +29,12 @@ function run_tests {
     echo -e "${blue}done${usual}"
  
     touch compare_file
-    #if lfu tests dir is empty
-    if ! [ `ls ${lfu_tests} | wc -l` -eq 0 ]
+    if [ -d "${lfu_tests_dir}" ]
     then
         echo -e "${white}lfu tests:${usual}"
-        for file in ${lfu_tests}*
+        for ((i = 1; i <= ${tests_number}; ++i))
         do  
-                $lfu_cache_out < file > compare_file
+                $lfu_cache_out < ${lfu_tests}/test${i}.txt > compare_file
                 echo -n -e "${purple}Test ${i}: ${usual}"
                 if diff -w ${lfu_ans}answ${i}.txt compare_file &>/dev/null
                 then
@@ -47,15 +46,12 @@ function run_tests {
                 cat compare_file
         done
     fi
-    #if perfect tests dir is empty
-    if ! [ `ls ${perfect_tests} | wc -l` -eq 0 ]
-
+    if [ -d "${perfect_tests_dir}" ]
     then
         echo -e "${white}perfect tests:${usual}"
-        for file in ${perfect_tests}*
+        for ((i = 1; i <= ${tests_number}; ++i))
         do      
-                echo "file = ${file}"
-                $perfect_cache_out < file > compare_file  
+                ${perfect_cache_out} <${perfect_tests}test${i}.txt > compare_file  
                 echo -n -e "${purple}Test ${i}: ${usual}"
                 if diff -w ${perfect_ans}answ${i}.txt compare_file &>/dev/null
                 then
@@ -67,6 +63,7 @@ function run_tests {
                 cat compare_file
         done
     fi
+    rm compare_file
 }
 
 function build_caches {
