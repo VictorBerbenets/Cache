@@ -39,6 +39,7 @@ function remove_old_data {
 }
 #---------------------------------------------#
 
+#---------------------------------------------#
 function build_compare {
     cmake -S ./ -B build/
     cd build/
@@ -52,6 +53,7 @@ function build_compare {
     ${tests_out_file} ${compares_count}
     cd ../../Compare
 }
+#---------------------------------------------#
 
 # main() #
 error="false"
