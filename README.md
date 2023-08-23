@@ -35,13 +35,13 @@ cmake -S ./ -B build/ -DPERFECT=ON
 ```
 For the second one do:
 ```
-cmake -S ./ -B build/
+cmake -S ./ -B build/ -DPERFECT=OFF
 ```
 ### 3) To run tests do:
 ```
 bash ./test_runner.sh mode N
 ```
-Instead **mode** you must write **lfu** or **perfec** (without quotes) keyword. **N** - number of tests
+Instead **mode** you must write **lfu** or **perfect** (without quotes) keyword. **N** - number of tests
 you want to generate and run for chosen cache. There's limit: N <= 150. If you enter greater
 number it sets in 150.
 ## How to run compare program:

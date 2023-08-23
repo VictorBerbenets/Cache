@@ -27,6 +27,3 @@ target_include_directories(
                             ${CMAKE_CURRENT_SOURCE_DIR}/${perfect_dir}/include
 )
 
-
-add_subdirectory(Compare)
-add_subdirectory(tests)
