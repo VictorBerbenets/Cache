@@ -41,7 +41,7 @@ cmake -S ./ -B build/
 ```
 bash ./test_runner.sh mode N
 ```
-Instead **mode** you must write **lfu** or **perfec** (without quotes) keywords. **N** - number of tests
+Instead **mode** you must write **lfu** or **perfec** (without quotes) keyword. **N** - number of tests
 you want to generate and run for chosen cache. There's limit: N <= 150. If you enter greater
 number it sets in 150.
 ## How to run compare program:
@@ -50,5 +50,6 @@ cd Compare/
 bash ./compare N
 ```
 Instead **N** you must enter number of files which will be generated and compared lfu 
-and perfect caches.
+and perfect caches. After that you can see a generated file called
+`comparing.txt` with differences.
 
