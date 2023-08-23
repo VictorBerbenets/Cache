@@ -47,7 +47,7 @@ bool weak_lfu::lookup_update(Key key) {
             ++cache_size_;
         }
         auto after_one_freq = std::find_if(cache_.begin(), cache_.end(), 
-                [](auto&& iter) { return iter.second != 1; });
+                [](auto&& value) { return value.second != 1; });
         cache_.emplace(after_one_freq, key, 1);
         return false;
     }
@@ -66,13 +66,13 @@ bool weak_lfu::lookup_update(Key key) {
 
 weak_lfu::cacheIter weak_lfu::find_last(u_int freq) {
     auto ret_value = std::find_if(cache_.rbegin(), cache_.rend(),
-                        [&freq](auto&& it) { return it.second <= freq; });
+                        [&freq](auto&& value) { return value.second <= freq; });
     return ret_value.base();
 }
 
 weak_lfu::cacheIter weak_lfu::find(Key key) {
     return std::find_if(cache_.begin(), cache_.end(),
-                        [&key](auto&& it) { return it.first == key; });
+                        [&key](auto&& value) { return value.first == key; });
 }
 
 bool weak_lfu::is_full() const noexcept {
@@ -81,7 +81,7 @@ bool weak_lfu::is_full() const noexcept {
 
 weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
     return std::min_element(cache_.begin(), cache_.end(), 
-                    [](auto&& it1, auto&& it2) { return it1.second < it2.second; });
+                    [](auto&& elem1, auto&& elem2) { return elem1.second < elem2.second; });
 }
 //------------------------------------------------------------------------------------------//
 
@@ -224,7 +224,6 @@ void generator::create_lfu_dirrs() {
         create_directory(dirrs::lfu_dirr_answs);
     } else {
         //revome old data
-        std::cout << "LFU_REMOVING\n";
         const path tests_path{dirrs::lfu_dirr_tests};         
         const path answs_path{dirrs::lfu_dirr_answs};
 
@@ -245,7 +244,6 @@ void generator::create_perfect_dirrs() {
         create_directory(dirrs::perfect_dirr_tests);
         create_directory(dirrs::perfect_dirr_answs);
     } else {
-        std::cout << "PERFECT_REMOVING\n";
         //revome old data 
         const path tests_path{dirrs::perfect_dirr_tests};         
         const path answs_path{dirrs::perfect_dirr_answs};
