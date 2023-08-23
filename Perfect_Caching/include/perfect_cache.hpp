@@ -12,7 +12,7 @@
 namespace yLAB {
 
 template<typename T, typename KeyT = int>
-class perfect_cache {
+class perfect_cache final {
 public:    
     using size_type = std::size_t;
     using page_t    = std::pair<KeyT, T>;

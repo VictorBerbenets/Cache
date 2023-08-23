@@ -12,7 +12,7 @@
 namespace Tests {
     using u_int = std::size_t;
 //------------------------------------------------------------------------------------------//
-class weak_lfu {
+class weak_lfu final {
     static constexpr u_int DEFAULT_CAP = 1;
 
     using Key = u_int;
@@ -85,7 +85,7 @@ weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
 }
 //------------------------------------------------------------------------------------------//
 
-class weak_perfect {
+class weak_perfect final {
     static constexpr u_int DEFAULT_CAP = 1;
     
     using Key       = u_int;
@@ -170,7 +170,7 @@ namespace dirrs {
     const std::string perfect_dirr_answs = "../perfect_resources/answers/";
 };
 
-class generator {
+class generator final {
     static constexpr u_int MAX_TESTS_NUMBER = 150;
     
     static constexpr u_int MAX_CACHE_SIZE     = 100;
@@ -223,7 +223,8 @@ void generator::create_lfu_dirrs() {
         create_directory(dirrs::lfu_dirr_tests);
         create_directory(dirrs::lfu_dirr_answs);
     } else {
-        //revome old data 
+        //revome old data
+        std::cout << "LFU_REMOVING\n";
         const path tests_path{dirrs::lfu_dirr_tests};         
         const path answs_path{dirrs::lfu_dirr_answs};
 
@@ -244,6 +245,7 @@ void generator::create_perfect_dirrs() {
         create_directory(dirrs::perfect_dirr_tests);
         create_directory(dirrs::perfect_dirr_answs);
     } else {
+        std::cout << "PERFECT_REMOVING\n";
         //revome old data 
         const path tests_path{dirrs::perfect_dirr_tests};         
         const path answs_path{dirrs::perfect_dirr_answs};

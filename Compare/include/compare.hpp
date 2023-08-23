@@ -10,7 +10,7 @@
 namespace yLAB {
 
 template<typename T, typename KeyT = int>
-class compare {
+class compare final {
 public:
     compare(std::size_t caches_capacity, std::istream& is);
     ~compare() = default;
@@ -52,9 +52,7 @@ compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is):
     //checking lfu cache
     using page_t = typename lfu_cache<T, KeyT>::page_t;
     auto get_page = [](KeyT key) -> page_t {
-                page_t page;
-                page.second = key;
-                return page;
+                return page_t {T{}, key};
                 };
 
     auto lfu_start = std::chrono::high_resolution_clock::now();
