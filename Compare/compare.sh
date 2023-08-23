@@ -8,17 +8,15 @@ usual="\033[0m"
 
 comp_files="../tests/perfect_resources/tests/"
 del_files="../tests/perfect_resources/answers"
-tests_out_dirr="../tests/build"
 tests_out_file="./testing"
 comp_out="./build/compare"
 
 
 #---------------------------------------------#
 function generate_comp_files {
-    cd ${tests_out_dirr}
+    build_compare
     echo -e "${blue}generating compare files...${usual}"
-    ${tests_out_file} ${compares_count}
-    cd ../../Compare
+    pwd
     for file in ${comp_files}*
     do
         ${comp_out} $file
@@ -40,6 +38,20 @@ function remove_old_data {
     rm ${comp_files}/*test*
 }
 #---------------------------------------------#
+
+function build_compare {
+    cmake -S ./ -B build/
+    cd build/
+    cmake --build .
+    cd ..
+
+    cd ../tests/
+    cmake -S ./ -B build/ -DPERFECT=ON
+    cd build
+    cmake --build .
+    ${tests_out_file} ${compares_count}
+    cd ../../Compare
+}
 
 # main() #
 error="false"

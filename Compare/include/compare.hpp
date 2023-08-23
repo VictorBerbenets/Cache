@@ -10,7 +10,7 @@
 namespace yLAB {
 
 template<typename T, typename KeyT = int>
-class compare final {
+class compare final {
 public:
     compare(std::size_t caches_capacity, std::istream& is);
     ~compare() = default;
