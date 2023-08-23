@@ -25,10 +25,13 @@ or you can run "perfect cache":
 ```
 
 ## How to run tests:
-### 1) cd tests/
+### 1) 
+```
+cd tests/
+```
 ### 2) You can choose two options:
-#### 2.1) Generate tests for Perfect cache
-#### 2.2) Generate tests for LFU cache
+#### 1) Generate tests for Perfect cache
+#### 2) Generate tests for LFU cache
 For the first one do:
 ```
 cmake -S ./ -B build/ -DPERFECT=ON
