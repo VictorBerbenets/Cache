@@ -7,9 +7,7 @@ std::size_t check_hits(yLAB::lfu_cache<T, KeyT>& cch, std::size_t number) {
     std::size_t hits = 0;
     using page_t = typename yLAB::lfu_cache<T, KeyT>::page_t; 
     auto get_page = [](KeyT key) -> page_t {
-                        page_t page;
-                        page.second = key;
-                        return page;
+                        return page_t{T{}, key};
                         };
 
     for (std::size_t count = 0; count < number; ++count) {

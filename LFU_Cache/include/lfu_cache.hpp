@@ -36,7 +36,9 @@ public:
     bool is_full() const noexcept;
 template<typename F>
     bool lookup_update(KeyT key, F get_page);
+#ifdef DEBUG
     void print_cache() const;
+#endif
 private:
     const size_type capacity_;
     std::unordered_map<KeyT, itemIter> hash_table_;
@@ -63,8 +65,8 @@ private:
 template<typename T, typename KeyT>
 template<typename F>
 bool lfu_cache<T, KeyT>::lookup_update(KeyT key, F get_page) {
-    auto is_found = hash_table_.find(key);
-    if (is_found == hash_table_.end()) {
+    auto hash_iter = hash_table_.find(key);
+    if (hash_iter == hash_table_.end()) {
         if (is_full()) {    
             remove_last_item();
             //freq-node with member freq_ = 1 must exist because we got new element
@@ -82,9 +84,9 @@ bool lfu_cache<T, KeyT>::lookup_update(KeyT key, F get_page) {
     } 
    //element was found in hash_table //
    //get Iter of list with found element
-    freqIter cache_iter  = (is_found->second)->fr_iter_;
+    freqIter cache_iter  = hash_iter->second->fr_iter_;
     auto next_cache_iter = std::next(cache_iter);
-    (cache_iter->freq_list_).erase(is_found->second);//erase item on found key
+    cache_iter->freq_list_.erase(hash_iter->second);//erase item on found key
     //looking for next suitable frequencyItem: if next one isn't suitable than insert your own
     if (next_cache_iter != cache_.end() && next_cache_iter->freq_ == (cache_iter->freq_ + 1)) {
         insert_item(get_page(key), next_cache_iter);
@@ -92,7 +94,7 @@ bool lfu_cache<T, KeyT>::lookup_update(KeyT key, F get_page) {
         freqIter inserted_cell = cache_.emplace(next_cache_iter, cache_iter->freq_ + 1); 
         insert_item(get_page(key), inserted_cell);
     }
-    if ((cache_iter->freq_list_).empty()) {
+    if (cache_iter->freq_list_.empty()) {
         cache_.erase(cache_iter);
     }
     return true;
@@ -122,18 +124,20 @@ void lfu_cache<T, KeyT>::remove_last_item() {
     }
 }
 
+#ifdef DEBUG
 template<typename T, typename KeyT>
 void lfu_cache<T, KeyT>::print_cache() const {
     std::cout << "cache:\n";
-    for (const auto& it1 : cache_) {
-        std::cout << it1.freq_ << ":";
-        for (const auto& it2 : it1.freq_list_) {
-            std::cout << it2.value.second << ' ';
+    for (const auto& freq_item : cache_) {
+        std::cout << freq_item.freq_ << ":";
+        for (const auto& list_elem : freq_item.freq_list_) {
+            std::cout << list_elem.value.second << ' ';
         }
         std::cout << '\n';
     }
     std::cout << "\n\n";
 }
+#endif
 
 } // <-- namespace yLab
 
