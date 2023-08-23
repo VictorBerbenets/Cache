@@ -16,12 +16,12 @@ cmake --build .
 After that you can run LFU cache:
 
 ```
-./LFU_Cache/lfu_cache
+./lfu
 ```
 or you can run "perfect cache":
 
 ```
-./Perfect_Caching/perfect_cache
+./perfect
 ```
 
 ## How to run tests:
@@ -39,9 +39,9 @@ cmake -S ./ -B build/
 ```
 ### 3) To run tests do:
 ```
-bash ./test_runner.sh **mode N**
+bash ./test_runner.sh `mode` `N`
 ```
-Instead mode must write 'lfu' or 'perfect' (without quotes). N - number of tests
+Instead **mode** must write **lfu** or **perfec** (without quotes) keywords. **N** - number of tests
 you want to generate and run. There's limit: N <= 150. If you enter greater
 number it sets in 150.
 ## How to run compare program:
@@ -49,6 +49,6 @@ number it sets in 150.
 cd Compare/
 ./compare N
 ```
-Instead N you must enter number of files which will be generated and compared lfu 
+Instead **N** you must enter number of files which will be generated and compared lfu 
 and perfect caches.
 
