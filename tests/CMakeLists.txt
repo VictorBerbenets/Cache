@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(testing)
 
+
 add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_include_directories(
@@ -10,9 +11,9 @@ target_include_directories(
                            ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-option(PERFECT_GENERATING "whether generate perfect tests or lfu tests" OFF)
+option(PERFECT "whether generate perfect tests or lfu tests" OFF)
 
-if (PERFECT_GENERATING)
+if (PERFECT)
     target_compile_definitions(
                               ${PROJECT_NAME}
                               PRIVATE
