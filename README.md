@@ -62,5 +62,5 @@ cd Compare/
 bash ./compare N
 ```
 Instead **N** you should enter number of files which will be generated. After that you can see a generated file called
-`comparing.txt` with differences for each file.
+`comparing.txt` with differences for each files.
 
