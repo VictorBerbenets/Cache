@@ -106,26 +106,26 @@ void perfect_cache<T, KeyT>::fill_buffers(Iter first, Iter last) {
 
 template<typename T, typename KeyT>
 void perfect_cache<T, KeyT>::fill_cache() {
-    for (auto& buff_iter : ordered_buffer_) {
+    for (const auto& [key, value] : ordered_buffer_) {
         //if element not in cache
-        if (cache_checker_.find(buff_iter.first) == cache_checker_.end()) {
+        if (cache_checker_.find(key) == cache_checker_.end()) {
             //if elem is the only one -> don't insert it in the cache
-            if (unordered_buffer_[buff_iter.first].size() == 1) {
+            if (unordered_buffer_[key].size() == 1) {
                 continue;
             }
             // remember new cache element
-            cache_checker_.insert(buff_iter.first);
+            cache_checker_.insert(key);
             if (is_full()) {
                 auto replace_iter = find_furthest_value();
-                replace_cache_value(replace_iter, {buff_iter.first, buff_iter.second});
+                replace_cache_value(replace_iter, {key, value});
             } else {
-                cache_.emplace_back(buff_iter.first, buff_iter.second);
+                cache_.emplace_back(key, value);
             }
         } else {
             ++hits_;
         }
         //after pushing elem to cache we don't need it in hash_table
-        remove_value_entry_number(buff_iter.first);
+        remove_value_entry_number(key);
     }
 }
 
@@ -182,8 +182,8 @@ void perfect_cache<T, KeyT>::clear() noexcept {
 template<typename T, typename KeyT>
 void perfect_cache<T, KeyT>::print_cache() const {
     std::cout << "cache: ";
-    for (auto& it : cache_) {
-        std::cout << it.first << ' ';
+    for (const auto& [key, value] : cache_) {
+        std::cout << key << ' ';
     }
     std::cout << '\n';
 }
