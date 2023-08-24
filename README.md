@@ -50,7 +50,11 @@ bash ./test_runner.sh mode N
 ```
 Instead **mode** you should write **lfu** or **perfect** (without quotes) keyword. **N** - number of tests
 you want to generate and run for chosen cache. There's limit: N <= 150. If you enter greater
-number, it sets in 150.
+number, it sets in 150.  
+After that you can see created directories:  
+**lfu_resources** - if you generated lfu tests  
+**perfect_resources** - if you generated perfect tests  
+Each of them contains tests/ and answers/ directories.
 ## How to run compare program:
 If you want compare lfu and perfect caches then do:
 ```
