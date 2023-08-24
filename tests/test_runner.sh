@@ -20,14 +20,9 @@ perfect_ans="${perfect_tests_dir}answers/"
 
 perfect_cache_out="./../build/perfect"
 
-function run_tests {
-    echo -e "${blue}generating tests...${usual}"
-    cd build
-    cmake --build .
-    ./testing $tests_number
-    cd ../
-    echo -e "${blue}done${usual}"
- 
+##------------------------------------------------------------------------------------------##
+function run_tests { 
+    generate_tests
     touch compare_file
     if [ ${is_lfu} = "true" ]
     then
@@ -75,7 +70,18 @@ function run_tests {
     fi
     rm compare_file
 }
+##------------------------------------------------------------------------------------------##
 
+function generate_tests {
+    echo -e "${blue}generating tests...${usual}"
+    cd build
+    cmake --build .
+    ./testing $tests_number
+    cd ../
+    echo -e "${blue}done${usual}"
+}
+
+##------------------------------------------------------------------------------------------##
 function build_caches {
     echo -e "${blue}Building caches...${usual}"
     cmake -S ./ -B build/
@@ -84,7 +90,7 @@ function build_caches {
     cd ..
     echo -e "${blue}done${usual}"
 }
-
+##------------------------------------------------------------------------------------------##
 
 #main part
 is_lfu="false"
