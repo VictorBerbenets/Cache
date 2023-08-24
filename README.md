@@ -1,8 +1,7 @@
 # LFU cache implementation on C++
-### about
-In this repository I implemented LFU(a caching algorithm in which the least
-frequently used cache block is removed whenever the cache is overflowed.)
-cache and compared it with another "perfect cache" algorithm.
+### About
+In this project I implemented LFU cache(a caching algorithm in which the least
+frequently used cache block is removed whenever the cache is overflowed) and compared it with "perfect cache" algorithm.
 "Perfect cache" algorithm was based on idea that we already know the future(full 
 incoming data package).
 ## Requirements
@@ -25,7 +24,9 @@ or you can run "perfect cache":
 ```
 ./perfect
 ```
-
+The program will be waiting for input data from std::istream in such way:
+**capacity** **size** number1 number2 ...
+**capacity** - capacity of the cache
 ## How to run tests:
 ### 1) 
 ```
@@ -33,28 +34,26 @@ cd tests/
 ```
 ### 2) You can choose two options:
 #### 1) Generate tests for Perfect cache
-#### 2) Generate tests for LFU cache
-For the first one do:
 ```
 cmake -S ./ -B build/ -DPERFECT=ON
 ```
-For the second one do:
+#### 2) Generate tests for LFU cache
 ```
-cmake -S ./ -B build/ -DPERFECT=OFF
+cmake -s ./ -b build/ -DPERFECT=OFF
 ```
 ### 3) To run tests do:
 ```
 bash ./test_runner.sh mode N
 ```
-Instead **mode** you must write **lfu** or **perfect** (without quotes) keyword. **N** - number of tests
+Instead **mode** you should write **lfu** or **perfect** (without quotes) keyword. **N** - number of tests
 you want to generate and run for chosen cache. There's limit: N <= 150. If you enter greater
-number it sets in 150.
+number, it sets in 150.
 ## How to run compare program:
 ```
 cd Compare/
 bash ./compare N
 ```
-Instead **N** you must enter number of files which will be generated and compared lfu 
+Instead **N** you should enter number of files which will be generated and compared lfu 
 and perfect caches. After that you can see a generated file called
 `comparing.txt` with differences.
 
