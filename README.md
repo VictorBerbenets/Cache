@@ -42,7 +42,7 @@ cmake -S ./ -B build/ -DPERFECT=ON
 ```
 #### 2) Generate tests for LFU cache
 ```
-cmake -s ./ -b build/ -DPERFECT=OFF
+cmake -s ./ -B build/ -DPERFECT=OFF
 ```
 ### 3) To run tests do:
 ```

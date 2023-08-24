@@ -13,13 +13,13 @@ namespace yLAB {
 
 template<typename T, typename KeyT = int>
 class perfect_cache final {
-public:    
+public:
     using size_type = std::size_t;
     using page_t    = std::pair<KeyT, T>;
 private:
     using cacheIter      = typename std::vector<page_t>::iterator;
     using elements_order = std::deque<size_type>;
- 
+
     void fill_buffers(std::istream& is, size_type pages_number);
 template<typename Iter>
     void fill_buffers(Iter first, Iter last);
@@ -30,7 +30,7 @@ template<typename Iter>
 public:
     perfect_cache(size_type capacity);
     ~perfect_cache() = default;
-    
+
     void give_data(std::istream& is);
 template<typename Iter>
     void give_data(Iter first, Iter last);
@@ -45,7 +45,7 @@ private:
     std::vector<page_t> cache_;
     std::unordered_set<KeyT> cache_checker_; //for checking if element already in cache
     std::list<page_t> ordered_buffer_; //for saving data in input order
-    std::unordered_map<KeyT, elements_order> unordered_buffer_; // save all data for finding  
+    std::unordered_map<KeyT, elements_order> unordered_buffer_; // save all data for finding
 
     size_type hits_ = 0;
 }; // <-- class cache
@@ -83,7 +83,7 @@ void perfect_cache<T, KeyT>::fill_buffers(std::istream& is, size_type pages_numb
         if (!is.good()) {
             throw std::runtime_error{"Data value reading error!\n"};
         }
-        ordered_buffer_.emplace_back(tmp.first, tmp.second); //ordered pages 
+        ordered_buffer_.emplace_back(tmp.first, tmp.second); //ordered pages
         //saving page order by page number to std::deque
         unordered_buffer_[tmp.first].push_back(count);
     }
@@ -110,7 +110,7 @@ void perfect_cache<T, KeyT>::fill_cache() {
     for (auto& buff_iter : ordered_buffer_) {
         //if element not in cache
         if (cache_checker_.find(buff_iter.first) == cache_checker_.end()) {
-           // remember new cache element 
+           // remember new cache element
             cache_checker_.insert(buff_iter.first);
             if (is_full()) {
                 auto replace_iter = find_furthest_value();
@@ -121,7 +121,7 @@ void perfect_cache<T, KeyT>::fill_cache() {
         } else {
             ++hits_;
         }
-        //after pushing elem to cache we don't need it in hash_table 
+        //after pushing elem to cache we don't need it in hash_table
         remove_value_entry_number(buff_iter.first);
     }
 }

@@ -61,7 +61,7 @@ compare<T, KeyT>::compare(std::size_t caches_cap, std::istream& is):
     }
     auto lfu_end = std::chrono::high_resolution_clock::now();//lfu time
     lfu_time_    = lfu_end - lfu_start;
-    //checking perfect cache 
+    //checking perfect cache
     auto perfect_start = std::chrono::high_resolution_clock::now();
     perfect_.give_data(data.begin(), data.end());
     perfect_hits_    = perfect_.get_hits();

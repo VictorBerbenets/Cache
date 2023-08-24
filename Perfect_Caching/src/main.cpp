@@ -2,7 +2,7 @@
 
 int main() {
     using size_type = yLAB::perfect_cache<std::string, std::size_t>::size_type;
-    
+
     size_type cache_capacity;
     std::cin >> cache_capacity;
     if (!std::cin.good()) {
@@ -13,3 +13,4 @@ int main() {
 
     std::cout << cache.get_hits() << '\n';
 }
+

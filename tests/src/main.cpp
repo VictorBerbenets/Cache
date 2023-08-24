@@ -14,3 +14,4 @@ int main(int argc, const char* argv[]) {
     Tests::generator gen;
     gen.generate(tests_number);
 }
+
