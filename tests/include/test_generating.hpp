@@ -31,7 +31,7 @@ public:
 private:
     std::list<cacheType> cache_;
     u_int cache_size_;
-    u_int capacity_;
+    const u_int capacity_;
 };
 
 weak_lfu::weak_lfu(u_int capacity):
@@ -46,14 +46,14 @@ bool weak_lfu::lookup_update(Key key) {
         } else {
             ++cache_size_;
         }
-        auto after_one_freq = std::ranges::find_if(cache_,
+        auto after_one_freq = std::find_if(cache_.begin(), cache_.end(),
                 [](auto&& value) { return value.second != 1; }
                 );
         cache_.emplace(after_one_freq, key, 1);
         return false;
     }
 
-    cache_iter->second += 1;
+    ++cache_iter->second;
     u_int freq = cache_iter->second;
     cache_.erase(cache_iter);
     auto emplace_iter = find_last(freq);
@@ -67,14 +67,14 @@ bool weak_lfu::lookup_update(Key key) {
 
 weak_lfu::cacheIter weak_lfu::find_last(u_int freq) {
     auto ret_value = std::find_if(cache_.rbegin(), cache_.rend(),
-                        [&freq](auto&& value) { return value.second <= freq; }
+                        [freq](auto&& value) { return value.second <= freq; }
                         );
     return ret_value.base();
 }
 
 weak_lfu::cacheIter weak_lfu::find(Key key) {
-    return std::ranges::find_if(cache_,
-                        [&key](auto&& value) { return value.first == key; }
+    return std::find_if(cache_.begin(), cache_.end(),
+                        [key](auto&& value) { return value.first == key; }
                         );
 }
 
@@ -83,14 +83,14 @@ bool weak_lfu::is_full() const noexcept {
 }
 
 weak_lfu::cacheIter weak_lfu::find_minimum_freq() {
-    return std::ranges::min_element(cache_,
+    return std::min_element(cache_.begin(), cache_.end(),
                     [](auto&& elem1, auto&& elem2) { return elem1.second < elem2.second; }
                     );
 }
 //------------------------------------------------------------------------------------------//
 
 class weak_perfect final {
-    static constexpr u_int DEFAULT_CAP = 1;
+    static constexpr u_int MIN_CAPACITY = 1;
     
     using Key       = u_int;
     using cacheIter = typename std::vector<Key>::iterator;
@@ -105,7 +105,7 @@ template<typename Iter>
     void lookup_update();
     u_int get_hits() const noexcept;
 private:
-    u_int capacity_;
+    const u_int capacity_;
     std::vector<Key> buffer_;
     std::vector<Key> cache_;
     u_int hits_;
@@ -113,7 +113,7 @@ private:
 
 template<typename Iter>
 weak_perfect::weak_perfect(u_int capacity, Iter begin, Iter end): 
-               capacity_{std::max(DEFAULT_CAP, capacity)}, 
+               capacity_{std::max(MIN_CAPACITY, capacity)}, 
                buffer_{begin, end}, 
                hits_{0} {
     cache_.reserve(capacity_);
@@ -151,13 +151,13 @@ weak_perfect::cacheIter weak_perfect::find_farthest_value(cacheIter buff_it) {
     if (distance_iters.empty()) {
         return cache_.begin();
     }
-    std::ranges::sort(distance_iters, std::greater<cacheIter>());
+    std::sort(distance_iters.begin(), distance_iters.end(), std::greater<cacheIter>());
     Key key = *distance_iters.front();
-    return std::ranges::find(cache_, key);
+    return std::find(cache_.begin(), cache_.end(), key);
 }
 
 weak_perfect::cacheIter weak_perfect::find(Key key) {
-    return std::ranges::find(cache_, key); 
+    return std::find(cache_.begin(), cache_.end(), key); 
 }
 
 std::size_t weak_perfect::get_hits() const noexcept {
