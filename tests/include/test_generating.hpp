@@ -13,7 +13,7 @@ namespace Tests {
     using u_int = std::size_t;
 //------------------------------------------------------------------------------------------//
 class weak_lfu final {
-    static constexpr u_int DEFAULT_CAP = 1;
+    static constexpr u_int MIN_CAPACITY = 1;
 
     using Key = u_int;
     using cacheType = std::pair<Key, u_int>;
@@ -36,7 +36,7 @@ private:
 
 weak_lfu::weak_lfu(u_int capacity):
         cache_size_{0}, 
-        capacity_{std::max(DEFAULT_CAP, capacity)} {}
+        capacity_{std::max(MIN_CAPACITY, capacity)} {}
 
 bool weak_lfu::lookup_update(Key key) {
     auto cache_iter = find(key);
@@ -160,7 +160,7 @@ weak_perfect::cacheIter weak_perfect::find(Key key) {
     return std::find(cache_.begin(), cache_.end(), key); 
 }
 
-std::size_t weak_perfect::get_hits() const noexcept {
+u_int weak_perfect::get_hits() const noexcept {
     return hits_;
 }
 //------------------------------------------------------------------------------------------//

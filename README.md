@@ -25,8 +25,11 @@ or you can run "perfect cache":
 ./perfect
 ```
 The program will be waiting for input data from std::istream in such way:
-**capacity** **size** number1 number2 ...
-**capacity** - capacity of the cache
+**capacity** **size** number1 number2 ...  
+**capacity** - capacity of the cache  
+**size** - size of incoming data  
+number1 number2 ... - cache numbers  
+At the end, the program will return hits.
 ## How to run tests:
 ### 1) 
 ```
@@ -49,11 +52,11 @@ Instead **mode** you should write **lfu** or **perfect** (without quotes) keywor
 you want to generate and run for chosen cache. There's limit: N <= 150. If you enter greater
 number, it sets in 150.
 ## How to run compare program:
+If you want compare lfu and perfect caches then do:
 ```
 cd Compare/
 bash ./compare N
 ```
-Instead **N** you should enter number of files which will be generated and compared lfu 
-and perfect caches. After that you can see a generated file called
-`comparing.txt` with differences.
+Instead **N** you should enter number of files which will be generated. After that you can see a generated file called
+`comparing.txt` with differences for each file.
 
