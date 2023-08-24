@@ -1,8 +1,8 @@
 # LFU cache implementation on C++
 ### About
 In this project I implemented LFU cache(a caching algorithm in which the least
-frequently used cache block is removed whenever the cache is overflowed) and compared it with "perfect cache" algorithm.
-"Perfect cache" algorithm was based on idea that we already know the future(full 
+frequently used cache block is removed whenever the cache is overflowed) and compared it with "perfect cache".
+"Perfect cache" is based on idea that we already know the future(full 
 incoming data package).
 ## Requirements
 **cmake** version must be 3.15 or higher
@@ -24,12 +24,12 @@ or you can run "perfect cache":
 ```
 ./perfect
 ```
-The program will be waiting for input data from std::istream in such way:
+The program will be waiting for input data from stdin in such way:
 **capacity** **size** number1 number2 ...  
 **capacity** - capacity of the cache  
 **size** - size of incoming data  
-number1 number2 ... - cache numbers  
-At the end, the program will return hits.
+number1 number2 ... - keys  
+At the end, the program prints number of hits to std::cout.
 ## How to run tests:
 ### 1) 
 ```
