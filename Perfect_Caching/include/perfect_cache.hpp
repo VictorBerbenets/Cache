@@ -19,6 +19,8 @@ public:
 private:
     using cacheIter      = typename std::vector<page_t>::iterator;
     using elements_order = std::deque<size_type>;
+    
+    static constexpr size_type MIN_CAPACITY = 1;
 
     void fill_buffers(std::istream& is, size_type pages_number);
 template<typename Iter>
@@ -52,7 +54,7 @@ private:
 
 template<typename T, typename KeyT>
 perfect_cache<T, KeyT>::perfect_cache(size_type capacity):
-                capacity_{capacity} {
+                capacity_{std::max(MIN_CAPACITY, capacity)} {
     cache_.reserve(capacity_);
 }
 
@@ -104,9 +106,6 @@ void perfect_cache<T, KeyT>::fill_buffers(Iter first, Iter last) {
 
 template<typename T, typename KeyT>
 void perfect_cache<T, KeyT>::fill_cache() {
-    if (!capacity_) {
-        return ;
-    }
     for (auto& buff_iter : ordered_buffer_) {
         //if element not in cache
         if (cache_checker_.find(buff_iter.first) == cache_checker_.end()) {
