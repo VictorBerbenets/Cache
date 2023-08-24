@@ -1,6 +1,6 @@
 # LFU cache implementation on C++
 ### About
-In this project I implemented LFU cache(a caching algorithm in which the least
+In this project I implemented LFU cache (a caching algorithm in which the least
 frequently used cache block is removed whenever the cache is overflowed) and compared it with "perfect cache".
 "Perfect cache" is based on idea that we already know the future(full 
 incoming data package).
