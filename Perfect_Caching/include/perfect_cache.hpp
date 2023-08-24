@@ -109,7 +109,11 @@ void perfect_cache<T, KeyT>::fill_cache() {
     for (auto& buff_iter : ordered_buffer_) {
         //if element not in cache
         if (cache_checker_.find(buff_iter.first) == cache_checker_.end()) {
-           // remember new cache element
+            //if elem is the only one -> don't insert it in the cache
+            if (unordered_buffer_[buff_iter.first].size() == 1) {
+                continue;
+            }
+            // remember new cache element
             cache_checker_.insert(buff_iter.first);
             if (is_full()) {
                 auto replace_iter = find_furthest_value();

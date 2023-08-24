@@ -123,6 +123,10 @@ void weak_perfect::lookup_update() {
     for (auto buff_it = buffer_.begin(); buff_it != buffer_.end(); ++buff_it) {
         auto pos_it = find(*buff_it);
         if (pos_it == cache_.end()) {
+            // if this key will never meet after than don't put it in cache
+            if (std::find(std::next(buff_it), buffer_.end(), *buff_it) == buffer_.end()) {
+                continue;
+            }
             if (is_full()) {
                 auto most_far = find_farthest_value(buff_it);
                 *most_far = *buff_it;
