@@ -29,7 +29,7 @@ The program will be waiting for input data from stdin in such way:
 **capacity** - capacity of the cache  
 **size** - size of incoming data  
 number1 number2 ... - keys  
-At the end, the program prints number of hits to std::cout.
+At the end, the program prints number of hits to stdout.
 ## How to run tests:
 ### 1) 
 ```
