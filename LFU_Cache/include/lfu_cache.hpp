@@ -75,7 +75,7 @@ bool lfu_cache<T, KeyT>::lookup_update(KeyT key, F get_page) {
             }
         } else {
             //if cache has't freq-list with freq_ == 1
-            if (cache_.begin()->freq_ != 1 || hash_table_.empty()) {
+            if (hash_table_.empty() || cache_.begin()->freq_ != 1) {
                 cache_.emplace_front(1);
             }
         }
