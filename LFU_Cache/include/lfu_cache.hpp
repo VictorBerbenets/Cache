@@ -1,5 +1,4 @@
-#ifndef LFU_CACHE_
-#define LFU_CACHE_
+#pragma once
 
 #include <iostream>
 #include <unordered_map>
@@ -140,6 +139,4 @@ void lfu_cache<T, KeyT>::print_cache() const {
 #endif
 
 } // <-- namespace yLab
-
-#endif
 

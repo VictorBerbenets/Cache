@@ -1,5 +1,4 @@
-#ifndef PERFECT_CACHE_
-#define PERFECT_CACHE_
+#pragma once
 
 #include <iostream>
 #include <unordered_map>
@@ -191,4 +190,3 @@ void perfect_cache<T, KeyT>::print_cache() const {
 
 }; // <-- namespace yLAB
 
-#endif

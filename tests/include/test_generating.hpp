@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <list>
@@ -330,3 +332,4 @@ u_int generator::random(gener_type& generator, u_int min_value, u_int max_value)
 }
 
 }; // <-- namespace Tests
+
